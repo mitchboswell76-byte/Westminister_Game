@@ -178,4 +178,48 @@ public class FoundationTests
 
         throw new InvalidOperationException("Could not find repository root containing Westminster.sln");
     }
+
+    [Fact]
+    public void CharacterFactory_CreatesPlayableBackbencherWithDefaults()
+    {
+        var character = Westminster.Character.CharacterFactory.CreatePlayer(
+            "char_alex_smith",
+            "Alex",
+            "Smith",
+            new DateOnly(1990, 5, 5),
+            "constituency_test",
+            "party_labour"
+        );
+
+        Assert.Equal("char_alex_smith", character.Id);
+        Assert.Equal("Alex", character.Name.First);
+        Assert.Equal("backbencher", character.CurrentPosition);
+        Assert.Equal("party_labour", character.PartyId);
+        Assert.True(character.IsPlayer);
+    }
+
+    [Fact]
+    public void SaveGameStore_CanPersistAndReadSaveMetadata()
+    {
+        var state = BuildState();
+        var store = new Westminster.Persistence.SaveGameStore();
+        var savePath = Path.Combine(Path.GetTempPath(), $"westminster_test_{Guid.NewGuid():N}.json");
+
+        try
+        {
+            store.SaveGame(savePath, state, 12345UL, new SaveSettings(2, true, false));
+            var loaded = store.LoadMetadata(savePath);
+
+            Assert.Equal(1, loaded.SaveVersion);
+            Assert.Equal(state.Date, loaded.GameDate);
+            Assert.Equal("char_player", loaded.PlayerCharacterId);
+            Assert.Equal(12345UL, loaded.RngSeed);
+            Assert.True(loaded.WorldStateDb.EndsWith(".db", StringComparison.OrdinalIgnoreCase));
+        }
+        finally
+        {
+            if (File.Exists(savePath)) File.Delete(savePath);
+        }
+    }
+
 }
