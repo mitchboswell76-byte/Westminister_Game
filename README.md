@@ -10,33 +10,31 @@ This repo includes a dev container at `.devcontainer/devcontainer.json` so you c
 1. In GitHub, click **Code**.
 2. Open the **Codespaces** tab.
 3. Create a new Codespace on your branch.
-4. Wait for the container to finish setup (`dotnet restore` runs automatically once).
+4. Wait for the container to finish setup.
 
 ### 2) Terminal-only workflow (recommended)
 Run these commands from the repository root:
 
 ```bash
-dotnet restore
-dotnet build
-dotnet test
-dotnet run --project tools/Westminster.SmokeRunner
+dotnet restore Westminster.sln
+dotnet build Westminster.sln
+dotnet test Westminster.sln
+dotnet run --project tools/Westminster.SmokeRunner/Westminster.SmokeRunner.csproj
 python scripts/check_no_direct_random.py
 python scripts/smoke_checks.py
 ```
 
-Notes:
-- `dotnet test` currently validates build/test discovery and will succeed even when no dedicated test project exists yet.
-- The smoke runner advances 400 simulation days and prints deterministic counters.
+The smoke runner advances 400 simulation days and prints deterministic counters.
 
 ## Optional: headless Godot check in Codespaces
 
-You do **not** need the desktop Godot editor for this PR. If you want a Godot runtime check in terminal only, use headless mode:
+You do **not** need the desktop Godot editor for this foundation. If you want a runtime check in terminal-only mode:
 
 ```bash
 godot4 --headless --path . --quit
 ```
 
-If `godot4` is not found in your Codespace image, install a headless build inside the Codespace and rerun the same command.
+If `godot4` is not available in your Codespace image, skip this optional check.
 
 ## Local prerequisites (outside Codespaces)
 - .NET 8 SDK
