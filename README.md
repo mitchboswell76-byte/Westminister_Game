@@ -39,3 +39,5 @@ If `godot4` is not available in your Codespace image, skip this optional check.
 ## Local prerequisites (outside Codespaces)
 - .NET 8 SDK
 - (Optional) Godot 4.3 runtime/editor for opening `project.godot`
+
+Development history and PRD progress are tracked in docs/DEVELOPMENT_HISTORY.md.
