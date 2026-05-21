@@ -1,0 +1,528 @@
+// Effect magnitudes are placeholders for playtesting calibration, not authoritative economic forecasts.
+[
+  {
+    "id": "policy_vat_standard_rate",
+    "name": "MVP Policy 1",
+    "category": "tax",
+    "subcategory": "mvp",
+    "type": "slider",
+    "min": 0.1,
+    "max": 0.3,
+    "step": 0.01,
+    "default": 0.2,
+    "current_value": 0.2,
+    "enum_values": [],
+    "unit": "index",
+    "display_format": "0.00",
+    "dependencies": [],
+    "effects": [
+      {
+        "function": "linear",
+        "target": "metric.gdp_growth",
+        "slope": 0.01,
+        "intercept": 0.2
+      }
+    ],
+    "faction_reactions": {
+      "faction_unions": 0.2,
+      "faction_city_finance": -0.2
+    },
+    "enabled_by_ideologies": [
+      "*"
+    ],
+    "disabled_by_government_types": [
+      "anarcho_capitalist"
+    ],
+    "phase_tag": "MVP"
+  },
+  {
+    "id": "policy_mvp_02",
+    "name": "MVP Policy 2",
+    "category": "tax",
+    "subcategory": "mvp",
+    "type": "slider",
+    "min": 0,
+    "max": 1,
+    "step": 0.01,
+    "default": 0.5,
+    "current_value": 0.5,
+    "enum_values": [],
+    "unit": "index",
+    "display_format": "0.00",
+    "dependencies": [],
+    "effects": [
+      {
+        "function": "linear",
+        "target": "metric.gdp_growth",
+        "slope": 0.01,
+        "intercept": 0.5
+      }
+    ],
+    "faction_reactions": {
+      "faction_unions": 0.2,
+      "faction_city_finance": -0.2
+    },
+    "enabled_by_ideologies": [
+      "*"
+    ],
+    "disabled_by_government_types": [
+      "anarcho_capitalist"
+    ],
+    "phase_tag": "MVP"
+  },
+  {
+    "id": "policy_mvp_03",
+    "name": "MVP Policy 3",
+    "category": "tax",
+    "subcategory": "mvp",
+    "type": "slider",
+    "min": 0,
+    "max": 1,
+    "step": 0.01,
+    "default": 0.5,
+    "current_value": 0.5,
+    "enum_values": [],
+    "unit": "index",
+    "display_format": "0.00",
+    "dependencies": [],
+    "effects": [
+      {
+        "function": "linear",
+        "target": "metric.gdp_growth",
+        "slope": 0.01,
+        "intercept": 0.5
+      }
+    ],
+    "faction_reactions": {
+      "faction_unions": 0.2,
+      "faction_city_finance": -0.2
+    },
+    "enabled_by_ideologies": [
+      "*"
+    ],
+    "disabled_by_government_types": [
+      "anarcho_capitalist"
+    ],
+    "phase_tag": "MVP"
+  },
+  {
+    "id": "policy_mvp_04",
+    "name": "MVP Policy 4",
+    "category": "tax",
+    "subcategory": "mvp",
+    "type": "slider",
+    "min": 0,
+    "max": 1,
+    "step": 0.01,
+    "default": 0.5,
+    "current_value": 0.5,
+    "enum_values": [],
+    "unit": "index",
+    "display_format": "0.00",
+    "dependencies": [],
+    "effects": [
+      {
+        "function": "linear",
+        "target": "metric.gdp_growth",
+        "slope": 0.01,
+        "intercept": 0.5
+      }
+    ],
+    "faction_reactions": {
+      "faction_unions": 0.2,
+      "faction_city_finance": -0.2
+    },
+    "enabled_by_ideologies": [
+      "*"
+    ],
+    "disabled_by_government_types": [
+      "anarcho_capitalist"
+    ],
+    "phase_tag": "MVP"
+  },
+  {
+    "id": "policy_mvp_05",
+    "name": "MVP Policy 5",
+    "category": "tax",
+    "subcategory": "mvp",
+    "type": "slider",
+    "min": 0,
+    "max": 1,
+    "step": 0.01,
+    "default": 0.5,
+    "current_value": 0.5,
+    "enum_values": [],
+    "unit": "index",
+    "display_format": "0.00",
+    "dependencies": [],
+    "effects": [
+      {
+        "function": "linear",
+        "target": "metric.gdp_growth",
+        "slope": 0.01,
+        "intercept": 0.5
+      }
+    ],
+    "faction_reactions": {
+      "faction_unions": 0.2,
+      "faction_city_finance": -0.2
+    },
+    "enabled_by_ideologies": [
+      "*"
+    ],
+    "disabled_by_government_types": [
+      "anarcho_capitalist"
+    ],
+    "phase_tag": "MVP"
+  },
+  {
+    "id": "policy_mvp_06",
+    "name": "MVP Policy 6",
+    "category": "tax",
+    "subcategory": "mvp",
+    "type": "slider",
+    "min": 0,
+    "max": 1,
+    "step": 0.01,
+    "default": 0.5,
+    "current_value": 0.5,
+    "enum_values": [],
+    "unit": "index",
+    "display_format": "0.00",
+    "dependencies": [],
+    "effects": [
+      {
+        "function": "linear",
+        "target": "metric.gdp_growth",
+        "slope": 0.01,
+        "intercept": 0.5
+      }
+    ],
+    "faction_reactions": {
+      "faction_unions": 0.2,
+      "faction_city_finance": -0.2
+    },
+    "enabled_by_ideologies": [
+      "*"
+    ],
+    "disabled_by_government_types": [
+      "anarcho_capitalist"
+    ],
+    "phase_tag": "MVP"
+  },
+  {
+    "id": "policy_mvp_07",
+    "name": "MVP Policy 7",
+    "category": "tax",
+    "subcategory": "mvp",
+    "type": "slider",
+    "min": 0,
+    "max": 1,
+    "step": 0.01,
+    "default": 0.5,
+    "current_value": 0.5,
+    "enum_values": [],
+    "unit": "index",
+    "display_format": "0.00",
+    "dependencies": [],
+    "effects": [
+      {
+        "function": "linear",
+        "target": "metric.gdp_growth",
+        "slope": 0.01,
+        "intercept": 0.5
+      }
+    ],
+    "faction_reactions": {
+      "faction_unions": 0.2,
+      "faction_city_finance": -0.2
+    },
+    "enabled_by_ideologies": [
+      "*"
+    ],
+    "disabled_by_government_types": [
+      "anarcho_capitalist"
+    ],
+    "phase_tag": "MVP"
+  },
+  {
+    "id": "policy_mvp_08",
+    "name": "MVP Policy 8",
+    "category": "tax",
+    "subcategory": "mvp",
+    "type": "slider",
+    "min": 0,
+    "max": 1,
+    "step": 0.01,
+    "default": 0.5,
+    "current_value": 0.5,
+    "enum_values": [],
+    "unit": "index",
+    "display_format": "0.00",
+    "dependencies": [],
+    "effects": [
+      {
+        "function": "linear",
+        "target": "metric.gdp_growth",
+        "slope": 0.01,
+        "intercept": 0.5
+      }
+    ],
+    "faction_reactions": {
+      "faction_unions": 0.2,
+      "faction_city_finance": -0.2
+    },
+    "enabled_by_ideologies": [
+      "*"
+    ],
+    "disabled_by_government_types": [
+      "anarcho_capitalist"
+    ],
+    "phase_tag": "MVP"
+  },
+  {
+    "id": "policy_mvp_09",
+    "name": "MVP Policy 9",
+    "category": "tax",
+    "subcategory": "mvp",
+    "type": "slider",
+    "min": 0,
+    "max": 1,
+    "step": 0.01,
+    "default": 0.5,
+    "current_value": 0.5,
+    "enum_values": [],
+    "unit": "index",
+    "display_format": "0.00",
+    "dependencies": [],
+    "effects": [
+      {
+        "function": "linear",
+        "target": "metric.gdp_growth",
+        "slope": 0.01,
+        "intercept": 0.5
+      }
+    ],
+    "faction_reactions": {
+      "faction_unions": 0.2,
+      "faction_city_finance": -0.2
+    },
+    "enabled_by_ideologies": [
+      "*"
+    ],
+    "disabled_by_government_types": [
+      "anarcho_capitalist"
+    ],
+    "phase_tag": "MVP"
+  },
+  {
+    "id": "policy_mvp_10",
+    "name": "MVP Policy 10",
+    "category": "tax",
+    "subcategory": "mvp",
+    "type": "slider",
+    "min": 0,
+    "max": 1,
+    "step": 0.01,
+    "default": 0.5,
+    "current_value": 0.5,
+    "enum_values": [],
+    "unit": "index",
+    "display_format": "0.00",
+    "dependencies": [],
+    "effects": [
+      {
+        "function": "linear",
+        "target": "metric.gdp_growth",
+        "slope": 0.01,
+        "intercept": 0.5
+      }
+    ],
+    "faction_reactions": {
+      "faction_unions": 0.2,
+      "faction_city_finance": -0.2
+    },
+    "enabled_by_ideologies": [
+      "*"
+    ],
+    "disabled_by_government_types": [
+      "anarcho_capitalist"
+    ],
+    "phase_tag": "MVP"
+  },
+  {
+    "id": "policy_mvp_11",
+    "name": "MVP Policy 11",
+    "category": "tax",
+    "subcategory": "mvp",
+    "type": "slider",
+    "min": 0,
+    "max": 1,
+    "step": 0.01,
+    "default": 0.5,
+    "current_value": 0.5,
+    "enum_values": [],
+    "unit": "index",
+    "display_format": "0.00",
+    "dependencies": [],
+    "effects": [
+      {
+        "function": "linear",
+        "target": "metric.gdp_growth",
+        "slope": 0.01,
+        "intercept": 0.5
+      }
+    ],
+    "faction_reactions": {
+      "faction_unions": 0.2,
+      "faction_city_finance": -0.2
+    },
+    "enabled_by_ideologies": [
+      "*"
+    ],
+    "disabled_by_government_types": [
+      "anarcho_capitalist"
+    ],
+    "phase_tag": "MVP"
+  },
+  {
+    "id": "policy_mvp_12",
+    "name": "MVP Policy 12",
+    "category": "tax",
+    "subcategory": "mvp",
+    "type": "slider",
+    "min": 0,
+    "max": 1,
+    "step": 0.01,
+    "default": 0.5,
+    "current_value": 0.5,
+    "enum_values": [],
+    "unit": "index",
+    "display_format": "0.00",
+    "dependencies": [],
+    "effects": [
+      {
+        "function": "linear",
+        "target": "metric.gdp_growth",
+        "slope": 0.01,
+        "intercept": 0.5
+      }
+    ],
+    "faction_reactions": {
+      "faction_unions": 0.2,
+      "faction_city_finance": -0.2
+    },
+    "enabled_by_ideologies": [
+      "*"
+    ],
+    "disabled_by_government_types": [
+      "anarcho_capitalist"
+    ],
+    "phase_tag": "MVP"
+  },
+  {
+    "id": "policy_mvp_13",
+    "name": "MVP Policy 13",
+    "category": "tax",
+    "subcategory": "mvp",
+    "type": "slider",
+    "min": 0,
+    "max": 1,
+    "step": 0.01,
+    "default": 0.5,
+    "current_value": 0.5,
+    "enum_values": [],
+    "unit": "index",
+    "display_format": "0.00",
+    "dependencies": [],
+    "effects": [
+      {
+        "function": "linear",
+        "target": "metric.gdp_growth",
+        "slope": 0.01,
+        "intercept": 0.5
+      }
+    ],
+    "faction_reactions": {
+      "faction_unions": 0.2,
+      "faction_city_finance": -0.2
+    },
+    "enabled_by_ideologies": [
+      "*"
+    ],
+    "disabled_by_government_types": [
+      "anarcho_capitalist"
+    ],
+    "phase_tag": "MVP"
+  },
+  {
+    "id": "policy_mvp_14",
+    "name": "MVP Policy 14",
+    "category": "tax",
+    "subcategory": "mvp",
+    "type": "slider",
+    "min": 0,
+    "max": 1,
+    "step": 0.01,
+    "default": 0.5,
+    "current_value": 0.5,
+    "enum_values": [],
+    "unit": "index",
+    "display_format": "0.00",
+    "dependencies": [],
+    "effects": [
+      {
+        "function": "linear",
+        "target": "metric.gdp_growth",
+        "slope": 0.01,
+        "intercept": 0.5
+      }
+    ],
+    "faction_reactions": {
+      "faction_unions": 0.2,
+      "faction_city_finance": -0.2
+    },
+    "enabled_by_ideologies": [
+      "*"
+    ],
+    "disabled_by_government_types": [
+      "anarcho_capitalist"
+    ],
+    "phase_tag": "MVP"
+  },
+  {
+    "id": "policy_mvp_15",
+    "name": "MVP Policy 15",
+    "category": "tax",
+    "subcategory": "mvp",
+    "type": "slider",
+    "min": 0,
+    "max": 1,
+    "step": 0.01,
+    "default": 0.5,
+    "current_value": 0.5,
+    "enum_values": [],
+    "unit": "index",
+    "display_format": "0.00",
+    "dependencies": [],
+    "effects": [
+      {
+        "function": "linear",
+        "target": "metric.gdp_growth",
+        "slope": 0.01,
+        "intercept": 0.5
+      }
+    ],
+    "faction_reactions": {
+      "faction_unions": 0.2,
+      "faction_city_finance": -0.2
+    },
+    "enabled_by_ideologies": [
+      "*"
+    ],
+    "disabled_by_government_types": [
+      "anarcho_capitalist"
+    ],
+    "phase_tag": "MVP"
+  }
+]

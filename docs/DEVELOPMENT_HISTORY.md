@@ -18,7 +18,7 @@ WESTMINSTER is a political simulation project being built from `Westminster_PRD.
 | 2 | §4 data schemas as C# records with JSON serialisation | Done | `src/Core/Models.cs`, JSON options in `JsonSupport` | Core schema records are present and JSON round-trip is tested. | Validate fields against PRD continuously when expanding usage. |
 | 3 | §5 core simulation tick loop | Done | `src/Simulation/SimulationTick.cs`, `src/Simulation/GameState.cs`, foundation tests | Daily tick, periodic hooks (monthly/annual/autosave), deterministic RNG wiring exist. | Replace no-op systems with real systems gradually, without breaking determinism. |
 | 4 | Character creation flow + SQLite save/load | Done | `src/Character/CharacterFactory.cs`, `src/Persistence/SaveGameStore.cs`, persistence integration tests | Character creation request model and hybrid `.westminster` save format (manifest + SQLite) are now implemented with transactional writes and load path; broader gameplay entities are still placeholders. | Save/load round-trip determinism now passes PRD §20.4 integration coverage with persisted full RNG state and ordered reads. |
-| 5 | Policy engine with 50 MVP policies | Not started | `src/Policy/Placeholder.cs` | No active policy execution engine yet. | Implement policy lever model execution and MVP 50 levers. |
+| 5 | Policy engine with 50 MVP policies | Done | `src/Policy/PolicyEngine.cs`, `src/Policy/Effects.cs`, `content/policies/*.json`, `src/Persistence/ContentLoader.cs` | Policy engine, content loader, metrics ledger, and 50 MVP levers now integrated with save/load and smoke checks. | Proceed to Step 6 pop model (1,000 pops/12 regions). |
 | 6 | Pop model | Not started | `src/Pops/Placeholder.cs` | Pop simulation not implemented. | Build 1,000-pop/12-region MVP model. |
 | 7 | Election system | Not started | `src/Election/Placeholder.cs` | FPTP simulator not implemented. | Add election cycle + constituency result simulation. |
 | 8 | UK map | Not started | `src/UK/Placeholder.cs`, `src/World/Placeholder.cs` | No ONS BGC map/topology integration yet. | Import map assets and build region/constituency binding. |
@@ -105,6 +105,17 @@ Result: Save→load→continue now preserves deterministic trajectory with byte-
 Known limitations: Policy engine and broader gameplay modules remain pending per fixed build order (Step 5 onward).
 Next recommended action: Implement Step 5 policy engine with the 50 MVP policy levers.
 
+## 2026-05-21 — PR #9 — Step 5 policy engine + 50 MVP policy levers
+
+Status: Completed
+PRD step: Step 5 (Policy engine + 50 MVP levers)
+Summary: Implemented PRD-aligned PolicyLever schema, pure policy effect calculus, monthly policy evaluation engine, metrics ledger persistence, policy content loader, and 50 MVP policy lever JSON files; integrated monthly tick ordering, smoke runner policy load/change path, and smoke checks for policy content constraints.
+Files changed: `src/Core/Models.cs`, `src/Policy/*`, `src/Persistence/ContentLoader.cs`, `src/Persistence/SaveGameStore.cs`, `src/Simulation/*`, `content/policies/*.json`, `tools/Westminster.SmokeRunner/Program.cs`, `scripts/smoke_checks.py`, `tests/Westminster.Tests/PolicyEngineTests.cs`, `docs/DEVELOPMENT_HISTORY.md`.
+Tests/checks run: restore/build/test/smoke runner/random guard/smoke checks.
+Result: Step 5 core implementation complete with deterministic monthly policy metrics accumulation and content loaded from disk.
+Known limitations: Effect magnitudes are placeholder values pending playtest calibration; advanced policy enactment and downstream systems remain Phase 2+.
+Next recommended action: Implement Step 6 pop model (1,000 pops across 12 regions).
+
 ---
 
 ## 4. Current Repo State
@@ -140,7 +151,7 @@ Current repository state includes:
 ## 6. Next Recommended PR
 
 ### Primary next PR
-**Proceed to Step 5 policy engine with the 50 MVP policy levers (§8.7).**
+**Proceed to Step 6 pop model (1,000-pop simulation across 12 regions, PRD §10.1).**
 
 Rationale: Step 4 is now complete and validated, so the fixed PRD build order moves directly to Step 5.
 

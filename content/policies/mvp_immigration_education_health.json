@@ -1,0 +1,234 @@
+// Effect magnitudes are placeholders for playtesting calibration, not authoritative economic forecasts.
+[
+  {
+    "id": "policy_mvp_31",
+    "name": "MVP Policy 31",
+    "category": "services",
+    "subcategory": "mvp",
+    "type": "slider",
+    "min": 0,
+    "max": 1,
+    "step": 0.01,
+    "default": 0.5,
+    "current_value": 0.5,
+    "enum_values": [],
+    "unit": "index",
+    "display_format": "0.00",
+    "dependencies": [],
+    "effects": [
+      {
+        "function": "linear",
+        "target": "metric.gdp_growth",
+        "slope": 0.01,
+        "intercept": 0.5
+      }
+    ],
+    "faction_reactions": {
+      "faction_unions": 0.2,
+      "faction_city_finance": -0.2
+    },
+    "enabled_by_ideologies": [
+      "*"
+    ],
+    "disabled_by_government_types": [],
+    "phase_tag": "MVP"
+  },
+  {
+    "id": "policy_mvp_32",
+    "name": "MVP Policy 32",
+    "category": "services",
+    "subcategory": "mvp",
+    "type": "slider",
+    "min": 0,
+    "max": 1,
+    "step": 0.01,
+    "default": 0.5,
+    "current_value": 0.5,
+    "enum_values": [],
+    "unit": "index",
+    "display_format": "0.00",
+    "dependencies": [],
+    "effects": [
+      {
+        "function": "linear",
+        "target": "metric.gdp_growth",
+        "slope": 0.01,
+        "intercept": 0.5
+      }
+    ],
+    "faction_reactions": {
+      "faction_unions": 0.2,
+      "faction_city_finance": -0.2
+    },
+    "enabled_by_ideologies": [
+      "*"
+    ],
+    "disabled_by_government_types": [],
+    "phase_tag": "MVP"
+  },
+  {
+    "id": "policy_mvp_33",
+    "name": "MVP Policy 33",
+    "category": "services",
+    "subcategory": "mvp",
+    "type": "slider",
+    "min": 0,
+    "max": 1,
+    "step": 0.01,
+    "default": 0.5,
+    "current_value": 0.5,
+    "enum_values": [],
+    "unit": "index",
+    "display_format": "0.00",
+    "dependencies": [],
+    "effects": [
+      {
+        "function": "linear",
+        "target": "metric.gdp_growth",
+        "slope": 0.01,
+        "intercept": 0.5
+      }
+    ],
+    "faction_reactions": {
+      "faction_unions": 0.2,
+      "faction_city_finance": -0.2
+    },
+    "enabled_by_ideologies": [
+      "*"
+    ],
+    "disabled_by_government_types": [],
+    "phase_tag": "MVP"
+  },
+  {
+    "id": "policy_mvp_34",
+    "name": "MVP Policy 34",
+    "category": "services",
+    "subcategory": "mvp",
+    "type": "slider",
+    "min": 0,
+    "max": 1,
+    "step": 0.01,
+    "default": 0.5,
+    "current_value": 0.5,
+    "enum_values": [],
+    "unit": "index",
+    "display_format": "0.00",
+    "dependencies": [],
+    "effects": [
+      {
+        "function": "linear",
+        "target": "metric.gdp_growth",
+        "slope": 0.01,
+        "intercept": 0.5
+      }
+    ],
+    "faction_reactions": {
+      "faction_unions": 0.2,
+      "faction_city_finance": -0.2
+    },
+    "enabled_by_ideologies": [
+      "*"
+    ],
+    "disabled_by_government_types": [],
+    "phase_tag": "MVP"
+  },
+  {
+    "id": "policy_mvp_35",
+    "name": "MVP Policy 35",
+    "category": "services",
+    "subcategory": "mvp",
+    "type": "slider",
+    "min": 0,
+    "max": 1,
+    "step": 0.01,
+    "default": 0.5,
+    "current_value": 0.5,
+    "enum_values": [],
+    "unit": "index",
+    "display_format": "0.00",
+    "dependencies": [],
+    "effects": [
+      {
+        "function": "linear",
+        "target": "metric.gdp_growth",
+        "slope": 0.01,
+        "intercept": 0.5
+      }
+    ],
+    "faction_reactions": {
+      "faction_unions": 0.2,
+      "faction_city_finance": -0.2
+    },
+    "enabled_by_ideologies": [
+      "*"
+    ],
+    "disabled_by_government_types": [],
+    "phase_tag": "MVP"
+  },
+  {
+    "id": "policy_mvp_36",
+    "name": "MVP Policy 36",
+    "category": "services",
+    "subcategory": "mvp",
+    "type": "slider",
+    "min": 0,
+    "max": 1,
+    "step": 0.01,
+    "default": 0.5,
+    "current_value": 0.5,
+    "enum_values": [],
+    "unit": "index",
+    "display_format": "0.00",
+    "dependencies": [],
+    "effects": [
+      {
+        "function": "linear",
+        "target": "metric.gdp_growth",
+        "slope": 0.01,
+        "intercept": 0.5
+      }
+    ],
+    "faction_reactions": {
+      "faction_unions": 0.2,
+      "faction_city_finance": -0.2
+    },
+    "enabled_by_ideologies": [
+      "*"
+    ],
+    "disabled_by_government_types": [],
+    "phase_tag": "MVP"
+  },
+  {
+    "id": "policy_mvp_37",
+    "name": "MVP Policy 37",
+    "category": "services",
+    "subcategory": "mvp",
+    "type": "slider",
+    "min": 0,
+    "max": 1,
+    "step": 0.01,
+    "default": 0.5,
+    "current_value": 0.5,
+    "enum_values": [],
+    "unit": "index",
+    "display_format": "0.00",
+    "dependencies": [],
+    "effects": [
+      {
+        "function": "linear",
+        "target": "metric.gdp_growth",
+        "slope": 0.01,
+        "intercept": 0.5
+      }
+    ],
+    "faction_reactions": {
+      "faction_unions": 0.2,
+      "faction_city_finance": -0.2
+    },
+    "enabled_by_ideologies": [
+      "*"
+    ],
+    "disabled_by_government_types": [],
+    "phase_tag": "MVP"
+  }
+]

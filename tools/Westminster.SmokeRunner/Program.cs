@@ -1,3 +1,5 @@
+using Westminster.Persistence;
+using Westminster.Policy;
 using Westminster.Core;
 using Westminster.Simulation;
 
@@ -8,6 +10,8 @@ var player = new Character(
     [], "ideology_none", 50, 0, 100, 0, [], [], [], [], [], new Dictionary<string, int>(), "none", [], 0, true, "player_created");
 
 var state = new GameState(new DateOnly(2026, 1, 1), player);
+state.Policies.AddRange(ContentLoader.MvpOnly(ContentLoader.LoadPolicyLevers(AppContext.BaseDirectory)));
+PolicyEngine.ApplyChange(state, "policy_vat_standard_rate", 0.22);
 var rng = new GameRng(123456);
 var systems = new NoOpSystems();
 
@@ -16,4 +20,4 @@ for (var i = 0; i < 400; i++)
     SimulationTick.Tick(state, rng, systems);
 }
 
-Console.WriteLine($"date={state.Date:yyyy-MM-dd} tick_count={state.TickCount} monthly={state.MonthlyHookCount} annual={state.AnnualHookCount} autosave={state.AutosaveHookCount}");
+Console.WriteLine($"date={state.Date:yyyy-MM-dd} tick_count={state.TickCount} monthly={state.MonthlyHookCount} annual={state.AnnualHookCount} autosave={state.AutosaveHookCount} policies_loaded={state.Policies.Count} metrics_keys={state.MetricsLedger.Snapshot().Count}");
