@@ -1,7 +1,9 @@
+using Xunit;
 using System.Text.Json;
 using System.IO.Compression;
 using System.Formats.Tar;
 using Westminster.Core;
+using GameCharacter = Westminster.Core.Character;
 using Westminster.Simulation;
 
 namespace Westminster.Tests;
@@ -115,7 +117,7 @@ public class FoundationTests
         var characterJson = JsonSerializer.Serialize(character, JsonSupport.Options);
         var saveJson = JsonSerializer.Serialize(save, JsonSupport.Options);
 
-        var characterRoundTrip = JsonSerializer.Deserialize<Character>(characterJson, JsonSupport.Options);
+        var characterRoundTrip = JsonSerializer.Deserialize<GameCharacter>(characterJson, JsonSupport.Options);
         var saveRoundTrip = JsonSerializer.Deserialize<SaveGameStructure>(saveJson, JsonSupport.Options);
 
         Assert.NotNull(characterRoundTrip);
@@ -152,7 +154,7 @@ public class FoundationTests
 
     private static GameState BuildState() => new(new DateOnly(2026, 1, 1), BuildCharacter());
 
-    private static Character BuildCharacter() => new(
+    private static GameCharacter BuildCharacter() => new(
         "char_player", new CharacterName("Test", "Player", null), new DateOnly(1980, 1, 1), null, "nonbinary", "unknown", "none", "unspecified", null, null, 0, "none",
         new CharacterAttributes(10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10),
         new CharacterHidden(10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10),
