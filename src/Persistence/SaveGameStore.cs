@@ -4,6 +4,7 @@ using System.Text;
 using System.Text.Json;
 using Microsoft.Data.Sqlite;
 using Westminster.Core;
+using GameCharacter = Westminster.Core.Character;
 using Westminster.Simulation;
 
 namespace Westminster.Persistence;
@@ -161,7 +162,7 @@ public sealed class SaveGameStore
         connection.Open();
 
         var row = ReadWorldState(connection);
-        var characters = ReadJsonRows<Character>(connection, "characters");
+        var characters = ReadJsonRows<GameCharacter>(connection, "characters");
         var player = characters.Single(c => c.Id == row.PlayerId);
         var state = new GameState(row.Date, player)
         {
