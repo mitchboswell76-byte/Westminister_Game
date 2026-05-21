@@ -30,6 +30,15 @@ WESTMINSTER is a political simulation project being built from `Westminster_PRD.
 
 ## 3. Update History
 
+## 2026-05-21 — PR #7 — Repo cleanup: ignore generated artifacts
+
+- **Summary of changes:** Added a repository `.gitignore` to keep generated build outputs, IDE files, save artifacts, generated SQLite/DB files, and temporary extraction folders out of version control.
+- **Files/areas changed:** `.gitignore`, `docs/DEVELOPMENT_HISTORY.md`.
+- **Tests/checks run:** Solution restore/build/test, smoke runner, and Python guard/smoke scripts.
+- **Result:** Cleaner git status during local/devcontainer and CI workflows with no gameplay or persistence behavior changes.
+- **Known limitations:** Ignore patterns are intentionally broad for generated artifacts; tracked files remain unaffected.
+- **Next recommended step (current):** Continue Step 4 persistence coverage expansion while keeping generated artifacts untracked.
+
 ## 2026-05-19 — PR #1 — Phase 0/1 foundation: project skeleton, schemas, tick loop, RNG, and smoke checks
 
 - **Summary of changes:** Established Godot/C# project skeleton, core schema records, deterministic RNG wrapper, initial simulation tick loop, and smoke/test scaffolding.
