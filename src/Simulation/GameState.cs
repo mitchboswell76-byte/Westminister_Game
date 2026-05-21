@@ -1,4 +1,5 @@
 using Westminster.Core;
+using GameCharacter = Westminster.Core.Character;
 
 namespace Westminster.Simulation;
 
@@ -6,8 +7,11 @@ public class GameState
 {
     public DateOnly Date { get; set; }
     public ulong TickCount { get; set; }
-    public Character Player { get; set; }
-    public List<Character> Cabinet { get; } = [];
+    public GameCharacter Player { get; set; }
+    public List<GameCharacter> Cabinet { get; } = [];
+    public List<GameCharacter> Characters { get; } = [];
+    public List<Constituency> Constituencies { get; } = [];
+    public List<PolicyLever> Policies { get; } = [];
     public List<Scheme> SchemesActive { get; } = [];
     public List<GameEvent> EventQueueToday { get; } = [];
 
@@ -15,9 +19,10 @@ public class GameState
     public int AnnualHookCount { get; set; }
     public int AutosaveHookCount { get; set; }
 
-    public GameState(DateOnly startDate, Character player)
+    public GameState(DateOnly startDate, GameCharacter player)
     {
         Date = startDate;
         Player = player;
+        Characters.Add(player);
     }
 }

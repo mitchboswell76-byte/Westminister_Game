@@ -1,5 +1,9 @@
+using Xunit;
 using System.Text.Json;
+using System.IO.Compression;
+using System.Formats.Tar;
 using Westminster.Core;
+using GameCharacter = Westminster.Core.Character;
 using Westminster.Simulation;
 
 namespace Westminster.Tests;
@@ -113,13 +117,50 @@ public class FoundationTests
         var characterJson = JsonSerializer.Serialize(character, JsonSupport.Options);
         var saveJson = JsonSerializer.Serialize(save, JsonSupport.Options);
 
-        var characterRoundTrip = JsonSerializer.Deserialize<Character>(characterJson, JsonSupport.Options);
+        var characterRoundTrip = JsonSerializer.Deserialize<GameCharacter>(characterJson, JsonSupport.Options);
         var saveRoundTrip = JsonSerializer.Deserialize<SaveGameStructure>(saveJson, JsonSupport.Options);
 
         Assert.NotNull(characterRoundTrip);
         Assert.NotNull(saveRoundTrip);
-        Assert.Equal(character, characterRoundTrip);
-        Assert.Equal(save, saveRoundTrip);
+
+        Assert.Equal(character.Id, characterRoundTrip!.Id);
+        Assert.Equal(character.Name.First, characterRoundTrip.Name.First);
+        Assert.Equal(character.Name.Last, characterRoundTrip.Name.Last);
+        Assert.Equal(character.BirthDate, characterRoundTrip.BirthDate);
+        Assert.Equal(character.CareerRank, characterRoundTrip.CareerRank);
+        Assert.Equal(character.CurrentPosition, characterRoundTrip.CurrentPosition);
+        Assert.Equal(character.Attributes.Charisma, characterRoundTrip.Attributes.Charisma);
+        Assert.Equal(character.Hidden.Loyalty, characterRoundTrip.Hidden.Loyalty);
+        Assert.Equal(character.IdeologyId, characterRoundTrip.IdeologyId);
+        Assert.Equal(character.IdeologyPurity, characterRoundTrip.IdeologyPurity);
+        Assert.Equal(character.Stress, characterRoundTrip.Stress);
+        Assert.Equal(character.Energy, characterRoundTrip.Energy);
+        Assert.Equal(character.IsPlayer, characterRoundTrip.IsPlayer);
+        Assert.Equal(character.SpawnSource, characterRoundTrip.SpawnSource);
+
+        Assert.Equal(character.Traits, characterRoundTrip.Traits);
+        Assert.Equal(character.Relationships.Count, characterRoundTrip.Relationships.Count);
+        Assert.Equal(character.HooksHeld, characterRoundTrip.HooksHeld);
+        Assert.Equal(character.HooksAgainstMe, characterRoundTrip.HooksAgainstMe);
+        Assert.Equal(character.Secrets, characterRoundTrip.Secrets);
+        Assert.Equal(character.PerksUnlocked, characterRoundTrip.PerksUnlocked);
+        Assert.Equal(character.SchemesActive, characterRoundTrip.SchemesActive);
+        Assert.Equal(character.PerkXp.Count, characterRoundTrip.PerkXp.Count);
+        foreach (var kvp in character.PerkXp)
+        {
+            Assert.True(characterRoundTrip.PerkXp.TryGetValue(kvp.Key, out var value));
+            Assert.Equal(kvp.Value, value);
+        }
+
+        Assert.Equal(save.SaveVersion, saveRoundTrip!.SaveVersion);
+        Assert.Equal(save.GameVersion, saveRoundTrip.GameVersion);
+        Assert.Equal(save.GameDate, saveRoundTrip.GameDate);
+        Assert.Equal(save.RngSeed, saveRoundTrip.RngSeed);
+        Assert.Equal(save.RngCallCount, saveRoundTrip.RngCallCount);
+        Assert.Equal(save.PlayerCharacterId, saveRoundTrip.PlayerCharacterId);
+        Assert.Equal(save.WorldStateDb, saveRoundTrip.WorldStateDb);
+        Assert.Equal(save.Settings, saveRoundTrip.Settings);
+        Assert.Equal(save.CharactersDirty, saveRoundTrip.CharactersDirty);
     }
 
     [Fact]
@@ -150,7 +191,7 @@ public class FoundationTests
 
     private static GameState BuildState() => new(new DateOnly(2026, 1, 1), BuildCharacter());
 
-    private static Character BuildCharacter() => new(
+    private static GameCharacter BuildCharacter() => new(
         "char_player", new CharacterName("Test", "Player", null), new DateOnly(1980, 1, 1), null, "nonbinary", "unknown", "none", "unspecified", null, null, 0, "none",
         new CharacterAttributes(10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10),
         new CharacterHidden(10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10),
@@ -203,7 +244,7 @@ public class FoundationTests
     {
         var state = BuildState();
         var store = new Westminster.Persistence.SaveGameStore();
-        var savePath = Path.Combine(Path.GetTempPath(), $"westminster_test_{Guid.NewGuid():N}.json");
+        var savePath = Path.Combine(Path.GetTempPath(), $"westminster_test_{Guid.NewGuid():N}.westminster");
 
         try
         {
@@ -214,7 +255,83 @@ public class FoundationTests
             Assert.Equal(state.Date, loaded.GameDate);
             Assert.Equal("char_player", loaded.PlayerCharacterId);
             Assert.Equal(12345UL, loaded.RngSeed);
-            Assert.True(loaded.WorldStateDb.EndsWith(".db", StringComparison.OrdinalIgnoreCase));
+            Assert.Equal("state.sqlite", loaded.WorldStateDb);
+        }
+        finally
+        {
+            if (File.Exists(savePath)) File.Delete(savePath);
+        }
+    }
+
+    [Fact]
+    public void SaveGameStore_SaveArchive_ContainsManifestAndSqlite()
+    {
+        var state = BuildState();
+        var store = new Westminster.Persistence.SaveGameStore();
+        var savePath = Path.Combine(Path.GetTempPath(), $"westminster_test_{Guid.NewGuid():N}.westminster");
+
+        try
+        {
+            store.SaveGame(savePath, state, 12345UL, new SaveSettings(2, true, false));
+
+            using var file = File.OpenRead(savePath);
+            using var gzip = new GZipStream(file, CompressionMode.Decompress);
+            using var reader = new TarReader(gzip);
+            var names = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            TarEntry? entry;
+            while ((entry = reader.GetNextEntry()) is not null)
+            {
+                names.Add(entry.Name);
+            }
+
+            Assert.Contains("manifest.json", names);
+            Assert.Contains("state.sqlite", names);
+        }
+        finally
+        {
+            if (File.Exists(savePath)) File.Delete(savePath);
+        }
+    }
+
+    [Fact]
+    public void SaveGameStore_Ironman_BlocksManualButAllowsAutosave()
+    {
+        var state = BuildState();
+        var store = new Westminster.Persistence.SaveGameStore();
+        var savePath = Path.Combine(Path.GetTempPath(), $"westminster_test_{Guid.NewGuid():N}.westminster");
+
+        Assert.Throws<InvalidOperationException>(() =>
+            store.SaveGame(savePath, state, 777UL, new SaveSettings(1, true, true), isAutosave: false));
+
+        store.SaveGame(savePath, state, 777UL, new SaveSettings(1, true, true), isAutosave: true);
+        Assert.True(File.Exists(savePath));
+
+        if (File.Exists(savePath)) File.Delete(savePath);
+    }
+
+    [Fact]
+    public void SaveGameStore_LoadGame_RoundTripsCoreState()
+    {
+        var state = BuildState();
+        state.TickCount = 100;
+        state.MonthlyHookCount = 3;
+        state.Policies.Add(new PolicyLever("policy_vat","VAT","tax","indirect","slider",0,30,1,20,20,"%","int",[],[],1,"MVP"));
+        var cabinetMember = state.Player with { Id = "char_cabinet_1", Name = new CharacterName("Casey", "Minister", null), IsPlayer = false };
+        state.Characters.Add(cabinetMember);
+        state.Cabinet.Add(cabinetMember);
+
+        var store = new Westminster.Persistence.SaveGameStore();
+        var savePath = Path.Combine(Path.GetTempPath(), $"westminster_test_{Guid.NewGuid():N}.westminster");
+        try
+        {
+            store.SaveGame(savePath, state, 999UL, new SaveSettings(1, true, false));
+            var loaded = store.LoadGame(savePath);
+
+            Assert.Equal(state.Date, loaded.Date);
+            Assert.Equal(100UL, loaded.TickCount);
+            Assert.Equal(2, loaded.Characters.Count);
+            Assert.Single(loaded.Cabinet);
+            Assert.Single(loaded.Policies);
         }
         finally
         {

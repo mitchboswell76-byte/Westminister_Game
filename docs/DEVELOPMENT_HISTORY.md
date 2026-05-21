@@ -17,7 +17,7 @@ WESTMINSTER is a political simulation project being built from `Westminster_PRD.
 | 1 | Project skeleton | Done | `project.godot`, `src/Westminster.Game.csproj`, modular folders under `src/` | Base Godot/C# structure exists and builds in solution. | Keep layout stable while adding features. |
 | 2 | §4 data schemas as C# records with JSON serialisation | Done | `src/Core/Models.cs`, JSON options in `JsonSupport` | Core schema records are present and JSON round-trip is tested. | Validate fields against PRD continuously when expanding usage. |
 | 3 | §5 core simulation tick loop | Done | `src/Simulation/SimulationTick.cs`, `src/Simulation/GameState.cs`, foundation tests | Daily tick, periodic hooks (monthly/annual/autosave), deterministic RNG wiring exist. | Replace no-op systems with real systems gradually, without breaking determinism. |
-| 4 | Character creation flow + SQLite save/load | In progress | `src/Character/CharacterFactory.cs`, `src/Persistence/SaveGameStore.cs` | Character factory and save metadata JSON are present; full SQLite world-state persistence is not implemented. | Complete full character creation flow + SQLite save/load per PRD §6.1 and §17.4. |
+| 4 | Character creation flow + SQLite save/load | In progress | `src/Character/CharacterFactory.cs`, `src/Persistence/SaveGameStore.cs`, persistence integration tests | Character creation request model and hybrid `.westminster` save format (manifest + SQLite) are now implemented with transactional writes and load path; broader gameplay entities are still placeholders. | Expand persisted tables as gameplay modules become concrete and add deterministic regression fixtures. |
 | 5 | Policy engine with 50 MVP policies | Not started | `src/Policy/Placeholder.cs` | No active policy execution engine yet. | Implement policy lever model execution and MVP 50 levers. |
 | 6 | Pop model | Not started | `src/Pops/Placeholder.cs` | Pop simulation not implemented. | Build 1,000-pop/12-region MVP model. |
 | 7 | Election system | Not started | `src/Election/Placeholder.cs` | FPTP simulator not implemented. | Add election cycle + constituency result simulation. |
@@ -75,6 +75,16 @@ WESTMINSTER is a political simulation project being built from `Westminster_PRD.
 - **Known limitations:** Early bootstrap commits are coarse-grained.
 - **Next recommended step (historical):** Start fixed PRD build order from skeleton onward.
 
+## 2026-05-21 — PR #5 — Hybrid save archive persistence, CI integration, and Step 4 hardening
+
+- **2026-05-21 follow-up:** PR #6 required a build-fix for `Character` namespace/type collision (CS0118) by using explicit model aliases in affected files; persistence behavior unchanged.
+- **Summary of changes:** Replaced metadata-only save logic with hybrid `.westminster` archive persistence using `manifest.json` + `state.sqlite`; added transactional SQLite writes/reads for mutable state scaffolding; added richer character-creation request flow; and introduced GitHub Actions CI for restore/build/test/smoke checks.
+- **Files/areas changed:** `src/Persistence/SaveGameStore.cs`, `src/Simulation/GameState.cs`, `src/Character/CharacterFactory.cs`, `src/Westminster.Game.csproj`, `tests/Westminster.Tests/FoundationTests.cs`, `.github/workflows/ci.yml`, `README.md`.
+- **Tests/checks run:** Solution restore/build/test, smoke runner, Python random guard, Python smoke checks.
+- **Result:** Foundation workflow and persistence architecture are now aligned with PRD §17.4 hybrid format and deterministic transaction-oriented storage expectations.
+- **Known limitations:** Most simulation modules remain placeholders, so persisted tables currently store only implemented mutable structures.
+- **Next recommended step (current):** Keep Step 4 in progress while expanding persisted content as modules become implemented, then proceed to Step 5 policy engine once Step 4 acceptance coverage is complete.
+
 ---
 
 ## 4. Current Repo State
@@ -96,7 +106,7 @@ Current repository state includes:
 
 ## 5. Current Known Issues / Technical Debt
 
-- No full SQLite save/load integration yet (Step 4 incomplete; current persistence is save metadata JSON + derived `.db` path).
+- Hybrid archive + SQLite persistence is in place, but table coverage is currently limited to implemented modules (many gameplay systems still placeholders).
 - No implemented policy engine yet (Step 5 not started).
 - No implemented pop model yet (Step 6 not started).
 - No implemented election simulator yet (Step 7 not started).
@@ -110,12 +120,12 @@ Current repository state includes:
 ## 6. Next Recommended PR
 
 ### Primary next PR
-**Stabilise foundation: solution file, real test project, clean smoke runner layout, verified Codespaces build.**
+**Expand Step 4 persistence coverage and add deterministic regression fixtures for additional mutable entities.**
 
 Rationale: keep the base toolchain and developer workflow robust before deeper feature additions, ensuring future PRs can be validated quickly and consistently.
 
 ### Then proceed to the next PRD feature
-**Character creation flow + SQLite save/load.**
+**Proceed to Step 5 policy engine after Step 4 acceptance coverage is complete.**
 
 Rationale: this is the next fixed build-order item (Step 4) and is only partially complete today.
 

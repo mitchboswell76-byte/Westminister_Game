@@ -26,6 +26,12 @@ python scripts/smoke_checks.py
 
 The smoke runner advances 400 simulation days and prints deterministic counters.
 
+Save files use the `.westminster` extension and are gzip-compressed tarballs containing:
+- `manifest.json` (save metadata)
+- `state.sqlite` (transactional mutable world state)
+
+Ironman behavior: manual saves are blocked; autosaves remain allowed.
+
 ## Optional: headless Godot check in Codespaces
 
 You do **not** need the desktop Godot editor for this foundation. If you want a runtime check in terminal-only mode:

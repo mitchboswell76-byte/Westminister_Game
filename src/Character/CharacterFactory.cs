@@ -1,12 +1,26 @@
 using Westminster.Core;
+using GameCharacter = Westminster.Core.Character;
 
 namespace Westminster.Character;
 
 public static class CharacterFactory
 {
-    public static Character CreatePlayer(string id, string firstName, string lastName, DateOnly birthDate, string constituencyId, string partyId)
+    public record PlayerCreationRequest(
+        string CharacterId,
+        string FirstName,
+        string LastName,
+        DateOnly BirthDate,
+        string ConstituencyId,
+        string PartyId,
+        string Gender,
+        string Ethnicity,
+        string Religion,
+        string Sexuality,
+        string IdeologyId);
+
+    public static GameCharacter CreatePlayer(string id, string firstName, string lastName, DateOnly birthDate, string constituencyId, string partyId)
     {
-        return new Character(
+        return new GameCharacter(
             id,
             new CharacterName(firstName, lastName, null),
             birthDate,
@@ -39,5 +53,25 @@ public static class CharacterFactory
             true,
             "player_created"
         );
+    }
+
+    public static GameCharacter CreatePlayer(PlayerCreationRequest request)
+    {
+        var baseCharacter = CreatePlayer(
+            request.CharacterId,
+            request.FirstName,
+            request.LastName,
+            request.BirthDate,
+            request.ConstituencyId,
+            request.PartyId);
+
+        return baseCharacter with
+        {
+            Gender = request.Gender,
+            Ethnicity = request.Ethnicity,
+            Religion = request.Religion,
+            Sexuality = request.Sexuality,
+            IdeologyId = request.IdeologyId
+        };
     }
 }
