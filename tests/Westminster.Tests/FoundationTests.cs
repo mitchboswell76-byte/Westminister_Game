@@ -1,4 +1,6 @@
 using System.Text.Json;
+using System.IO.Compression;
+using System.Formats.Tar;
 using Westminster.Core;
 using Westminster.Simulation;
 
@@ -203,7 +205,7 @@ public class FoundationTests
     {
         var state = BuildState();
         var store = new Westminster.Persistence.SaveGameStore();
-        var savePath = Path.Combine(Path.GetTempPath(), $"westminster_test_{Guid.NewGuid():N}.json");
+        var savePath = Path.Combine(Path.GetTempPath(), $"westminster_test_{Guid.NewGuid():N}.westminster");
 
         try
         {
@@ -214,7 +216,83 @@ public class FoundationTests
             Assert.Equal(state.Date, loaded.GameDate);
             Assert.Equal("char_player", loaded.PlayerCharacterId);
             Assert.Equal(12345UL, loaded.RngSeed);
-            Assert.True(loaded.WorldStateDb.EndsWith(".db", StringComparison.OrdinalIgnoreCase));
+            Assert.Equal("state.sqlite", loaded.WorldStateDb);
+        }
+        finally
+        {
+            if (File.Exists(savePath)) File.Delete(savePath);
+        }
+    }
+
+    [Fact]
+    public void SaveGameStore_SaveArchive_ContainsManifestAndSqlite()
+    {
+        var state = BuildState();
+        var store = new Westminster.Persistence.SaveGameStore();
+        var savePath = Path.Combine(Path.GetTempPath(), $"westminster_test_{Guid.NewGuid():N}.westminster");
+
+        try
+        {
+            store.SaveGame(savePath, state, 12345UL, new SaveSettings(2, true, false));
+
+            using var file = File.OpenRead(savePath);
+            using var gzip = new GZipStream(file, CompressionMode.Decompress);
+            using var reader = new TarReader(gzip);
+            var names = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            TarEntry? entry;
+            while ((entry = reader.GetNextEntry()) is not null)
+            {
+                names.Add(entry.Name);
+            }
+
+            Assert.Contains("manifest.json", names);
+            Assert.Contains("state.sqlite", names);
+        }
+        finally
+        {
+            if (File.Exists(savePath)) File.Delete(savePath);
+        }
+    }
+
+    [Fact]
+    public void SaveGameStore_Ironman_BlocksManualButAllowsAutosave()
+    {
+        var state = BuildState();
+        var store = new Westminster.Persistence.SaveGameStore();
+        var savePath = Path.Combine(Path.GetTempPath(), $"westminster_test_{Guid.NewGuid():N}.westminster");
+
+        Assert.Throws<InvalidOperationException>(() =>
+            store.SaveGame(savePath, state, 777UL, new SaveSettings(1, true, true), isAutosave: false));
+
+        store.SaveGame(savePath, state, 777UL, new SaveSettings(1, true, true), isAutosave: true);
+        Assert.True(File.Exists(savePath));
+
+        if (File.Exists(savePath)) File.Delete(savePath);
+    }
+
+    [Fact]
+    public void SaveGameStore_LoadGame_RoundTripsCoreState()
+    {
+        var state = BuildState();
+        state.TickCount = 100;
+        state.MonthlyHookCount = 3;
+        state.Policies.Add(new PolicyLever("policy_vat","VAT","tax","indirect","slider",0,30,1,20,20,"%","int",[],[],1,"MVP"));
+        var cabinetMember = state.Player with { Id = "char_cabinet_1", Name = new CharacterName("Casey", "Minister", null), IsPlayer = false };
+        state.Characters.Add(cabinetMember);
+        state.Cabinet.Add(cabinetMember);
+
+        var store = new Westminster.Persistence.SaveGameStore();
+        var savePath = Path.Combine(Path.GetTempPath(), $"westminster_test_{Guid.NewGuid():N}.westminster");
+        try
+        {
+            store.SaveGame(savePath, state, 999UL, new SaveSettings(1, true, false));
+            var loaded = store.LoadGame(savePath);
+
+            Assert.Equal(state.Date, loaded.Date);
+            Assert.Equal(100UL, loaded.TickCount);
+            Assert.Equal(2, loaded.Characters.Count);
+            Assert.Single(loaded.Cabinet);
+            Assert.Single(loaded.Policies);
         }
         finally
         {

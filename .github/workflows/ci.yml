@@ -1,0 +1,30 @@
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [ main ]
+
+jobs:
+  build-test-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Restore
+        run: dotnet restore Westminster.sln
+      - name: Build
+        run: dotnet build Westminster.sln --no-restore
+      - name: Test
+        run: dotnet test Westminster.sln --no-build
+      - name: Smoke runner
+        run: dotnet run --project tools/Westminster.SmokeRunner/Westminster.SmokeRunner.csproj
+      - name: RNG guard
+        run: python scripts/check_no_direct_random.py
+      - name: Python smoke checks
+        run: python scripts/smoke_checks.py

@@ -8,6 +8,9 @@ public class GameState
     public ulong TickCount { get; set; }
     public Character Player { get; set; }
     public List<Character> Cabinet { get; } = [];
+    public List<Character> Characters { get; } = [];
+    public List<Constituency> Constituencies { get; } = [];
+    public List<PolicyLever> Policies { get; } = [];
     public List<Scheme> SchemesActive { get; } = [];
     public List<GameEvent> EventQueueToday { get; } = [];
 
@@ -19,5 +22,6 @@ public class GameState
     {
         Date = startDate;
         Player = player;
+        Characters.Add(player);
     }
 }
