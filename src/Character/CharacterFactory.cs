@@ -1,4 +1,5 @@
 using Westminster.Core;
+using GameCharacter = Westminster.Core.Character;
 
 namespace Westminster.Character;
 
@@ -17,9 +18,9 @@ public static class CharacterFactory
         string Sexuality,
         string IdeologyId);
 
-    public static Character CreatePlayer(string id, string firstName, string lastName, DateOnly birthDate, string constituencyId, string partyId)
+    public static GameCharacter CreatePlayer(string id, string firstName, string lastName, DateOnly birthDate, string constituencyId, string partyId)
     {
-        return new Character(
+        return new GameCharacter(
             id,
             new CharacterName(firstName, lastName, null),
             birthDate,
@@ -54,7 +55,7 @@ public static class CharacterFactory
         );
     }
 
-    public static Character CreatePlayer(PlayerCreationRequest request)
+    public static GameCharacter CreatePlayer(PlayerCreationRequest request)
     {
         var baseCharacter = CreatePlayer(
             request.CharacterId,

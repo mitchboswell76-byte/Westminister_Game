@@ -77,6 +77,7 @@ WESTMINSTER is a political simulation project being built from `Westminster_PRD.
 
 ## 2026-05-21 — PR #5 — Hybrid save archive persistence, CI integration, and Step 4 hardening
 
+- **2026-05-21 follow-up:** PR #6 required a build-fix for `Character` namespace/type collision (CS0118) by using explicit model aliases in affected files; persistence behavior unchanged.
 - **Summary of changes:** Replaced metadata-only save logic with hybrid `.westminster` archive persistence using `manifest.json` + `state.sqlite`; added transactional SQLite writes/reads for mutable state scaffolding; added richer character-creation request flow; and introduced GitHub Actions CI for restore/build/test/smoke checks.
 - **Files/areas changed:** `src/Persistence/SaveGameStore.cs`, `src/Simulation/GameState.cs`, `src/Character/CharacterFactory.cs`, `src/Westminster.Game.csproj`, `tests/Westminster.Tests/FoundationTests.cs`, `.github/workflows/ci.yml`, `README.md`.
 - **Tests/checks run:** Solution restore/build/test, smoke runner, Python random guard, Python smoke checks.
