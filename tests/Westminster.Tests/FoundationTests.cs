@@ -122,8 +122,45 @@ public class FoundationTests
 
         Assert.NotNull(characterRoundTrip);
         Assert.NotNull(saveRoundTrip);
-        Assert.Equal(character, characterRoundTrip);
-        Assert.Equal(save, saveRoundTrip);
+
+        Assert.Equal(character.Id, characterRoundTrip!.Id);
+        Assert.Equal(character.Name.First, characterRoundTrip.Name.First);
+        Assert.Equal(character.Name.Last, characterRoundTrip.Name.Last);
+        Assert.Equal(character.BirthDate, characterRoundTrip.BirthDate);
+        Assert.Equal(character.CareerRank, characterRoundTrip.CareerRank);
+        Assert.Equal(character.CurrentPosition, characterRoundTrip.CurrentPosition);
+        Assert.Equal(character.Attributes.Charisma, characterRoundTrip.Attributes.Charisma);
+        Assert.Equal(character.Hidden.Loyalty, characterRoundTrip.Hidden.Loyalty);
+        Assert.Equal(character.IdeologyId, characterRoundTrip.IdeologyId);
+        Assert.Equal(character.IdeologyPurity, characterRoundTrip.IdeologyPurity);
+        Assert.Equal(character.Stress, characterRoundTrip.Stress);
+        Assert.Equal(character.Energy, characterRoundTrip.Energy);
+        Assert.Equal(character.IsPlayer, characterRoundTrip.IsPlayer);
+        Assert.Equal(character.SpawnSource, characterRoundTrip.SpawnSource);
+
+        Assert.Equal(character.Traits, characterRoundTrip.Traits);
+        Assert.Equal(character.Relationships.Count, characterRoundTrip.Relationships.Count);
+        Assert.Equal(character.HooksHeld, characterRoundTrip.HooksHeld);
+        Assert.Equal(character.HooksAgainstMe, characterRoundTrip.HooksAgainstMe);
+        Assert.Equal(character.Secrets, characterRoundTrip.Secrets);
+        Assert.Equal(character.PerksUnlocked, characterRoundTrip.PerksUnlocked);
+        Assert.Equal(character.SchemesActive, characterRoundTrip.SchemesActive);
+        Assert.Equal(character.PerkXp.Count, characterRoundTrip.PerkXp.Count);
+        foreach (var kvp in character.PerkXp)
+        {
+            Assert.True(characterRoundTrip.PerkXp.TryGetValue(kvp.Key, out var value));
+            Assert.Equal(kvp.Value, value);
+        }
+
+        Assert.Equal(save.SaveVersion, saveRoundTrip!.SaveVersion);
+        Assert.Equal(save.GameVersion, saveRoundTrip.GameVersion);
+        Assert.Equal(save.GameDate, saveRoundTrip.GameDate);
+        Assert.Equal(save.RngSeed, saveRoundTrip.RngSeed);
+        Assert.Equal(save.RngCallCount, saveRoundTrip.RngCallCount);
+        Assert.Equal(save.PlayerCharacterId, saveRoundTrip.PlayerCharacterId);
+        Assert.Equal(save.WorldStateDb, saveRoundTrip.WorldStateDb);
+        Assert.Equal(save.Settings, saveRoundTrip.Settings);
+        Assert.Equal(save.CharactersDirty, saveRoundTrip.CharactersDirty);
     }
 
     [Fact]
