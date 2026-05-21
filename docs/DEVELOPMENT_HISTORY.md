@@ -6,7 +6,7 @@ WESTMINSTER is a political simulation project being built from `Westminster_PRD.
 
 - **Target engine:** Godot 4.3 + C# (.NET 8).
 - **Current development phase:** Foundation complete, early Phase 1 transition (character creation/save metadata scaffolding started).
-- **Current PRD build-order step:** Step 4 (Character creation flow + SQLite save/load) is **in progress**.
+- **Current PRD build-order step:** Step 4 (Character creation flow + SQLite save/load) is **done**.
 
 ---
 
@@ -17,7 +17,7 @@ WESTMINSTER is a political simulation project being built from `Westminster_PRD.
 | 1 | Project skeleton | Done | `project.godot`, `src/Westminster.Game.csproj`, modular folders under `src/` | Base Godot/C# structure exists and builds in solution. | Keep layout stable while adding features. |
 | 2 | §4 data schemas as C# records with JSON serialisation | Done | `src/Core/Models.cs`, JSON options in `JsonSupport` | Core schema records are present and JSON round-trip is tested. | Validate fields against PRD continuously when expanding usage. |
 | 3 | §5 core simulation tick loop | Done | `src/Simulation/SimulationTick.cs`, `src/Simulation/GameState.cs`, foundation tests | Daily tick, periodic hooks (monthly/annual/autosave), deterministic RNG wiring exist. | Replace no-op systems with real systems gradually, without breaking determinism. |
-| 4 | Character creation flow + SQLite save/load | In progress | `src/Character/CharacterFactory.cs`, `src/Persistence/SaveGameStore.cs`, persistence integration tests | Character creation request model and hybrid `.westminster` save format (manifest + SQLite) are now implemented with transactional writes and load path; broader gameplay entities are still placeholders. | Expand persisted tables as gameplay modules become concrete and add deterministic regression fixtures. |
+| 4 | Character creation flow + SQLite save/load | Done | `src/Character/CharacterFactory.cs`, `src/Persistence/SaveGameStore.cs`, persistence integration tests | Character creation request model and hybrid `.westminster` save format (manifest + SQLite) are now implemented with transactional writes and load path; broader gameplay entities are still placeholders. | Save/load round-trip determinism now passes PRD §20.4 integration coverage with persisted full RNG state and ordered reads. |
 | 5 | Policy engine with 50 MVP policies | Not started | `src/Policy/Placeholder.cs` | No active policy execution engine yet. | Implement policy lever model execution and MVP 50 levers. |
 | 6 | Pop model | Not started | `src/Pops/Placeholder.cs` | Pop simulation not implemented. | Build 1,000-pop/12-region MVP model. |
 | 7 | Election system | Not started | `src/Election/Placeholder.cs` | FPTP simulator not implemented. | Add election cycle + constituency result simulation. |
@@ -94,6 +94,17 @@ WESTMINSTER is a political simulation project being built from `Westminster_PRD.
 - **Known limitations:** Most simulation modules remain placeholders, so persisted tables currently store only implemented mutable structures.
 - **Next recommended step (current):** Keep Step 4 in progress while expanding persisted content as modules become implemented, then proceed to Step 5 policy engine once Step 4 acceptance coverage is complete.
 
+## 2026-05-21 — PR #8 — Complete Step 4 RNG determinism and save/load round-trip
+
+Status: Completed
+PRD step: Step 4 (Character creation + SQLite save/load)
+Summary: Replaced `System.Random` usage in `GameRng` with deterministic xoshiro256** + splitmix64 seeding, persisted full RNG internal state in SQLite world state, made save/load return both `GameState` and `GameRng`, enforced deterministic SELECT ordering (including cabinet position), added PRD §20.4 save/load determinism integration coverage plus RNG capture/restore sequence test, and widened direct-random guard script to include `tools/` and `tests/`.
+Files changed: `src/Core/GameRng.cs`, `src/Persistence/SaveGameStore.cs`, `tests/Westminster.Tests/FoundationTests.cs`, `scripts/check_no_direct_random.py`, `docs/DEVELOPMENT_HISTORY.md`.
+Tests/checks run: `dotnet restore Westminster.sln`, `dotnet build Westminster.sln`, `dotnet test Westminster.sln --no-build`, `dotnet run --project tools/Westminster.SmokeRunner/Westminster.SmokeRunner.csproj`, `python scripts/check_no_direct_random.py`, `python scripts/smoke_checks.py`.
+Result: Save→load→continue now preserves deterministic trajectory with byte-identical canonical hash outcomes versus never-saved control, and Step 4 acceptance coverage is green including PRD §20.4.
+Known limitations: Policy engine and broader gameplay modules remain pending per fixed build order (Step 5 onward).
+Next recommended action: Implement Step 5 policy engine with the 50 MVP policy levers.
+
 ---
 
 ## 4. Current Repo State
@@ -129,14 +140,9 @@ Current repository state includes:
 ## 6. Next Recommended PR
 
 ### Primary next PR
-**Expand Step 4 persistence coverage and add deterministic regression fixtures for additional mutable entities.**
+**Proceed to Step 5 policy engine with the 50 MVP policy levers (§8.7).**
 
-Rationale: keep the base toolchain and developer workflow robust before deeper feature additions, ensuring future PRs can be validated quickly and consistently.
-
-### Then proceed to the next PRD feature
-**Proceed to Step 5 policy engine after Step 4 acceptance coverage is complete.**
-
-Rationale: this is the next fixed build-order item (Step 4) and is only partially complete today.
+Rationale: Step 4 is now complete and validated, so the fixed PRD build order moves directly to Step 5.
 
 ---
 
