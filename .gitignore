@@ -1,0 +1,18 @@
+# .NET build output
+bin/
+obj/
+TestResults/
+.vs/
+*.user
+*.suo
+
+# Westminster generated saves/databases
+*.westminster
+*.sqlite
+*.db
+
+# Temporary archive/extraction folders
+*.tmp_extract/
+*.extract/
+extracted/
+archives_tmp/
