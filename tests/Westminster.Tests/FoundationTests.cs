@@ -1,5 +1,7 @@
 using Xunit;
+using System.Text;
 using System.Text.Json;
+using System.Security.Cryptography;
 using System.IO.Compression;
 using System.Formats.Tar;
 using Westminster.Core;
@@ -168,21 +170,28 @@ public class FoundationTests
     {
         var randomReferenceFiles = new List<string>();
         var root = FindRepositoryRoot();
-        var srcDir = Path.Combine(root, "src");
-        var gameRngPath = Path.GetFullPath(Path.Combine(srcDir, "Core", "GameRng.cs"));
+        var gameRngPath = Path.GetFullPath(Path.Combine(root, "src", "Core", "GameRng.cs"));
+        var thisFilePath = Path.GetFullPath(Path.Combine(root, "tests", "Westminster.Tests", "FoundationTests.cs"));
 
-        foreach (var file in Directory.EnumerateFiles(srcDir, "*.cs", SearchOption.AllDirectories))
+        foreach (var scope in new[] { "src", "tools", "tests" })
         {
-            var fullPath = Path.GetFullPath(file);
-            if (string.Equals(fullPath, gameRngPath, StringComparison.OrdinalIgnoreCase))
+            var scopeDir = Path.Combine(root, scope);
+            foreach (var file in Directory.EnumerateFiles(scopeDir, "*.cs", SearchOption.AllDirectories))
             {
-                continue;
-            }
+                var fullPath = Path.GetFullPath(file);
+                if (string.Equals(fullPath, gameRngPath, StringComparison.OrdinalIgnoreCase) ||
+                    string.Equals(fullPath, thisFilePath, StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
 
-            var content = File.ReadAllText(file);
-            if (content.Contains("System.Random", StringComparison.Ordinal) || content.Contains("new Random(", StringComparison.Ordinal))
-            {
-                randomReferenceFiles.Add(Path.GetRelativePath(root, fullPath));
+                var content = File.ReadAllText(file);
+                var systemRandomPattern = "System." + "Random";
+                var newRandomPattern = "new " + "Random(";
+                if (content.Contains(systemRandomPattern, StringComparison.Ordinal) || content.Contains(newRandomPattern, StringComparison.Ordinal))
+                {
+                    randomReferenceFiles.Add(Path.GetRelativePath(root, fullPath));
+                }
             }
         }
 
@@ -248,7 +257,8 @@ public class FoundationTests
 
         try
         {
-            store.SaveGame(savePath, state, 12345UL, new SaveSettings(2, true, false));
+            var rng = new GameRng(12345UL);
+            store.SaveGame(savePath, state, rng, new SaveSettings(2, true, false));
             var loaded = store.LoadMetadata(savePath);
 
             Assert.Equal(1, loaded.SaveVersion);
@@ -272,7 +282,8 @@ public class FoundationTests
 
         try
         {
-            store.SaveGame(savePath, state, 12345UL, new SaveSettings(2, true, false));
+            var rng = new GameRng(12345UL);
+            store.SaveGame(savePath, state, rng, new SaveSettings(2, true, false));
 
             using var file = File.OpenRead(savePath);
             using var gzip = new GZipStream(file, CompressionMode.Decompress);
@@ -301,9 +312,9 @@ public class FoundationTests
         var savePath = Path.Combine(Path.GetTempPath(), $"westminster_test_{Guid.NewGuid():N}.westminster");
 
         Assert.Throws<InvalidOperationException>(() =>
-            store.SaveGame(savePath, state, 777UL, new SaveSettings(1, true, true), isAutosave: false));
+            store.SaveGame(savePath, state, new GameRng(777UL), new SaveSettings(1, true, true), isAutosave: false));
 
-        store.SaveGame(savePath, state, 777UL, new SaveSettings(1, true, true), isAutosave: true);
+        store.SaveGame(savePath, state, new GameRng(777UL), new SaveSettings(1, true, true), isAutosave: true);
         Assert.True(File.Exists(savePath));
 
         if (File.Exists(savePath)) File.Delete(savePath);
@@ -324,19 +335,99 @@ public class FoundationTests
         var savePath = Path.Combine(Path.GetTempPath(), $"westminster_test_{Guid.NewGuid():N}.westminster");
         try
         {
-            store.SaveGame(savePath, state, 999UL, new SaveSettings(1, true, false));
+            var rng = new GameRng(999UL);
+            store.SaveGame(savePath, state, rng, new SaveSettings(1, true, false));
             var loaded = store.LoadGame(savePath);
 
-            Assert.Equal(state.Date, loaded.Date);
-            Assert.Equal(100UL, loaded.TickCount);
-            Assert.Equal(2, loaded.Characters.Count);
-            Assert.Single(loaded.Cabinet);
-            Assert.Single(loaded.Policies);
+            Assert.Equal(state.Date, loaded.State.Date);
+            Assert.Equal(100UL, loaded.State.TickCount);
+            Assert.Equal(2, loaded.State.Characters.Count);
+            Assert.Single(loaded.State.Cabinet);
+            Assert.Single(loaded.State.Policies);
+            Assert.Equal(rng.CaptureState(), loaded.Rng.CaptureState());
         }
         finally
         {
             if (File.Exists(savePath)) File.Delete(savePath);
         }
+    }
+
+
+    [Fact]
+    public void GameRng_CaptureAndRestoreState_ProducesIdenticalSequence()
+    {
+        var a = new GameRng(12345UL);
+        for (var i = 0; i < 100; i++) { _ = a.Next(1, 100); _ = a.NextDouble(); }
+        var state = a.CaptureState();
+        var b = new GameRng(state);
+        for (var i = 0; i < 50; i++)
+        {
+            Assert.Equal(a.Next(1, 100), b.Next(1, 100));
+            Assert.Equal(a.NextDouble(), b.NextDouble());
+        }
+    }
+
+    [Fact]
+    public void SaveLoad_DeterminismRoundTrip_PerPrdSection20_4()
+    {
+        const ulong seed = 8472918374UL;
+        var control = RunTicks(seed, totalDailyTicks: 6000, saveAtMidpoint: false, savePath: null);
+        var savePath = Path.Combine(Path.GetTempPath(), $"determinism_{Guid.NewGuid():N}.westminster");
+        try
+        {
+            var experimental = RunTicks(seed, totalDailyTicks: 6000, saveAtMidpoint: true, savePath: savePath);
+            Assert.Equal(control, experimental);
+        }
+        finally
+        {
+            if (File.Exists(savePath)) File.Delete(savePath);
+        }
+    }
+
+    private static string RunTicks(ulong seed, int totalDailyTicks, bool saveAtMidpoint, string? savePath)
+    {
+        var store = new Westminster.Persistence.SaveGameStore();
+        var settings = new SaveSettings(1, true, false);
+        var state = BuildState();
+        var rng = new GameRng(seed);
+        var systems = new NoOpSystems();
+
+        var midpoint = totalDailyTicks / 2;
+        for (var i = 0; i < midpoint; i++)
+        {
+            SimulationTick.Tick(state, rng, systems);
+        }
+
+        if (saveAtMidpoint)
+        {
+            if (string.IsNullOrWhiteSpace(savePath)) throw new InvalidOperationException("savePath is required when saveAtMidpoint is true.");
+            store.SaveGame(savePath, state, rng, settings);
+            var loaded = store.LoadGame(savePath);
+            state = loaded.State;
+            rng = loaded.Rng;
+        }
+
+        for (var i = midpoint; i < totalDailyTicks; i++)
+        {
+            SimulationTick.Tick(state, rng, systems);
+        }
+
+        var canonical = new
+        {
+            state.Date,
+            state.TickCount,
+            Characters = state.Characters.OrderBy(x => x.Id).ToList(),
+            Cabinet = state.Cabinet.Select(x => x.Id).ToList(),
+            Constituencies = state.Constituencies.OrderBy(x => x.Id).ToList(),
+            Policies = state.Policies.OrderBy(x => x.Id).ToList(),
+            Schemes = state.SchemesActive.OrderBy(x => x.Id).ToList(),
+            Events = state.EventQueueToday.OrderBy(x => x.Id).ToList(),
+            Rng = rng.CaptureState()
+        };
+
+        var json = JsonSerializer.Serialize(canonical, JsonSupport.Options);
+        var hash = SHA256.HashData(Encoding.UTF8.GetBytes(json));
+        return Convert.ToHexString(hash);
     }
 
 }

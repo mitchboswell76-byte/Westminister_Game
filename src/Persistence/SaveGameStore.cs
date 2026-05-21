@@ -9,13 +9,15 @@ using Westminster.Simulation;
 
 namespace Westminster.Persistence;
 
+public sealed record LoadedGame(GameState State, GameRng Rng);
+
 public sealed class SaveGameStore
 {
     private const string ManifestFileName = "manifest.json";
     private const string StateFileName = "state.sqlite";
     private const string SaveFileExtension = ".westminster";
 
-    public void SaveGame(string path, GameState state, ulong seed, SaveSettings settings, bool isAutosave = false)
+    public void SaveGame(string path, GameState state, GameRng rng, SaveSettings settings, bool isAutosave = false)
     {
         if (settings.Ironman && !isAutosave)
         {
@@ -31,9 +33,9 @@ public sealed class SaveGameStore
         try
         {
             var sqlitePath = Path.Combine(tempDir, StateFileName);
-            PersistStateToSqlite(sqlitePath, state, seed);
+            PersistStateToSqlite(sqlitePath, state, rng.CaptureState());
 
-            var manifest = BuildManifest(state, seed, settings);
+            var manifest = BuildManifest(state, rng, settings);
             var manifestPath = Path.Combine(tempDir, ManifestFileName);
             File.WriteAllText(manifestPath, JsonSerializer.Serialize(manifest, JsonSupport.Options), Encoding.UTF8);
 
@@ -56,21 +58,31 @@ public sealed class SaveGameStore
 
     public SaveGameStructure LoadMetadata(string path)
     {
-        var tempDir = ExtractArchive(path);
-        try
+        var fullPath = EnsureSaveExtension(path);
+        if (!File.Exists(fullPath)) throw new FileNotFoundException("Save file not found.", fullPath);
+
+        using var file = File.OpenRead(fullPath);
+        using var gzip = new GZipStream(file, CompressionMode.Decompress);
+        using var reader = new TarReader(gzip);
+        TarEntry? entry;
+        while ((entry = reader.GetNextEntry()) is not null)
         {
-            var manifestPath = Path.Combine(tempDir, ManifestFileName);
-            var manifestJson = File.ReadAllText(manifestPath, Encoding.UTF8);
-            var save = JsonSerializer.Deserialize<SaveGameStructure>(manifestJson, JsonSupport.Options);
+            if (!string.Equals(entry.Name, ManifestFileName, StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            using var stream = entry.DataStream ?? throw new InvalidOperationException("Manifest entry did not contain a stream.");
+            using var mem = new MemoryStream();
+            stream.CopyTo(mem);
+            var save = JsonSerializer.Deserialize<SaveGameStructure>(mem.ToArray(), JsonSupport.Options);
             return save ?? throw new InvalidOperationException("Failed to deserialize save manifest.");
         }
-        finally
-        {
-            Directory.Delete(tempDir, recursive: true);
-        }
+
+        throw new InvalidOperationException("Manifest entry not found in save archive.");
     }
 
-    public GameState LoadGame(string path)
+    public LoadedGame LoadGame(string path)
     {
         var tempDir = ExtractArchive(path);
         try
@@ -87,8 +99,8 @@ public sealed class SaveGameStore
     private static string EnsureSaveExtension(string path) =>
         path.EndsWith(SaveFileExtension, StringComparison.OrdinalIgnoreCase) ? path : path + SaveFileExtension;
 
-    private static SaveGameStructure BuildManifest(GameState state, ulong seed, SaveSettings settings) =>
-        new(1, "0.1.0", state.Date, seed, 0UL, state.Player.Id, StateFileName, [], settings);
+    private static SaveGameStructure BuildManifest(GameState state, GameRng rng, SaveSettings settings) =>
+        new(1, "0.1.0", state.Date, rng.Seed, rng.CallCount, state.Player.Id, StateFileName, [], settings);
 
     private static string ExtractArchive(string path)
     {
@@ -105,15 +117,15 @@ public sealed class SaveGameStore
         return tempDir;
     }
 
-    private static void PersistStateToSqlite(string sqlitePath, GameState state, ulong seed)
+    private static void PersistStateToSqlite(string sqlitePath, GameState state, RngState rng)
     {
         using var connection = new SqliteConnection($"Data Source={sqlitePath}");
         connection.Open();
         using var transaction = connection.BeginTransaction();
 
-        Execute(connection, transaction, "create table world_state(date text not null, tick_count integer not null, rng_seed integer not null, player_id text not null, monthly_hook_count integer not null, annual_hook_count integer not null, autosave_hook_count integer not null);");
+        Execute(connection, transaction, "create table world_state(date text not null, tick_count integer not null, rng_seed integer not null, rng_call_count integer not null, rng_s0 integer not null, rng_s1 integer not null, rng_s2 integer not null, rng_s3 integer not null, player_id text not null, monthly_hook_count integer not null, annual_hook_count integer not null, autosave_hook_count integer not null);");
         Execute(connection, transaction, "create table characters(id text primary key, payload_json text not null);");
-        Execute(connection, transaction, "create table cabinet(character_id text primary key);");
+        Execute(connection, transaction, "create table cabinet(position integer not null, character_id text not null, primary key(position));");
         Execute(connection, transaction, "create table constituencies(id text primary key, payload_json text not null);");
         Execute(connection, transaction, "create table policies(id text primary key, payload_json text not null);");
         Execute(connection, transaction, "create table schemes(id text primary key, payload_json text not null);");
@@ -122,10 +134,15 @@ public sealed class SaveGameStore
         using (var cmd = connection.CreateCommand())
         {
             cmd.Transaction = transaction;
-            cmd.CommandText = "insert into world_state(date, tick_count, rng_seed, player_id, monthly_hook_count, annual_hook_count, autosave_hook_count) values ($date,$tick,$seed,$player,$monthly,$annual,$autosave);";
+            cmd.CommandText = "insert into world_state(date, tick_count, rng_seed, rng_call_count, rng_s0, rng_s1, rng_s2, rng_s3, player_id, monthly_hook_count, annual_hook_count, autosave_hook_count) values ($date,$tick,$seed,$callCount,$s0,$s1,$s2,$s3,$player,$monthly,$annual,$autosave);";
             cmd.Parameters.AddWithValue("$date", state.Date.ToString("yyyy-MM-dd"));
-            cmd.Parameters.AddWithValue("$tick", (long)state.TickCount);
-            cmd.Parameters.AddWithValue("$seed", (long)seed);
+            cmd.Parameters.AddWithValue("$tick", unchecked((long)state.TickCount));
+            cmd.Parameters.AddWithValue("$seed", unchecked((long)rng.Seed));
+            cmd.Parameters.AddWithValue("$callCount", unchecked((long)rng.CallCount));
+            cmd.Parameters.AddWithValue("$s0", unchecked((long)rng.S0));
+            cmd.Parameters.AddWithValue("$s1", unchecked((long)rng.S1));
+            cmd.Parameters.AddWithValue("$s2", unchecked((long)rng.S2));
+            cmd.Parameters.AddWithValue("$s3", unchecked((long)rng.S3));
             cmd.Parameters.AddWithValue("$player", state.Player.Id);
             cmd.Parameters.AddWithValue("$monthly", state.MonthlyHookCount);
             cmd.Parameters.AddWithValue("$annual", state.AnnualHookCount);
@@ -142,13 +159,17 @@ public sealed class SaveGameStore
         using (var cmd = connection.CreateCommand())
         {
             cmd.Transaction = transaction;
-            cmd.CommandText = "insert into cabinet(character_id) values ($id);";
+            cmd.CommandText = "insert into cabinet(position, character_id) values ($position, $id);";
+            var positionParam = cmd.CreateParameter();
+            positionParam.ParameterName = "$position";
+            cmd.Parameters.Add(positionParam);
             var idParam = cmd.CreateParameter();
             idParam.ParameterName = "$id";
             cmd.Parameters.Add(idParam);
-            foreach (var member in state.Cabinet)
+            for (var i = 0; i < state.Cabinet.Count; i++)
             {
-                idParam.Value = member.Id;
+                positionParam.Value = i;
+                idParam.Value = state.Cabinet[i].Id;
                 cmd.ExecuteNonQuery();
             }
         }
@@ -156,7 +177,7 @@ public sealed class SaveGameStore
         transaction.Commit();
     }
 
-    private static GameState LoadStateFromSqlite(string sqlitePath)
+    private static LoadedGame LoadStateFromSqlite(string sqlitePath)
     {
         using var connection = new SqliteConnection($"Data Source={sqlitePath}");
         connection.Open();
@@ -186,29 +207,36 @@ public sealed class SaveGameStore
             if (found is not null) state.Cabinet.Add(found);
         }
 
-        return state;
+        var rng = new GameRng(new RngState(row.RngSeed, row.RngCallCount, row.S0, row.S1, row.S2, row.S3));
+        return new LoadedGame(state, rng);
     }
 
-    private static (DateOnly Date, ulong TickCount, string PlayerId, int Monthly, int Annual, int Autosave) ReadWorldState(SqliteConnection connection)
+    private static (DateOnly Date, ulong TickCount, ulong RngSeed, ulong RngCallCount, ulong S0, ulong S1, ulong S2, ulong S3, string PlayerId, int Monthly, int Annual, int Autosave) ReadWorldState(SqliteConnection connection)
     {
         using var cmd = connection.CreateCommand();
-        cmd.CommandText = "select date, tick_count, player_id, monthly_hook_count, annual_hook_count, autosave_hook_count from world_state limit 1;";
+        cmd.CommandText = "select date, tick_count, rng_seed, rng_call_count, rng_s0, rng_s1, rng_s2, rng_s3, player_id, monthly_hook_count, annual_hook_count, autosave_hook_count from world_state limit 1;";
         using var reader = cmd.ExecuteReader();
         if (!reader.Read()) throw new InvalidOperationException("No world state found in save.");
         return (
             DateOnly.Parse(reader.GetString(0)),
-            (ulong)reader.GetInt64(1),
-            reader.GetString(2),
-            reader.GetInt32(3),
-            reader.GetInt32(4),
-            reader.GetInt32(5));
+            unchecked((ulong)reader.GetInt64(1)),
+            unchecked((ulong)reader.GetInt64(2)),
+            unchecked((ulong)reader.GetInt64(3)),
+            unchecked((ulong)reader.GetInt64(4)),
+            unchecked((ulong)reader.GetInt64(5)),
+            unchecked((ulong)reader.GetInt64(6)),
+            unchecked((ulong)reader.GetInt64(7)),
+            reader.GetString(8),
+            reader.GetInt32(9),
+            reader.GetInt32(10),
+            reader.GetInt32(11));
     }
 
     private static List<string> ReadCabinetIds(SqliteConnection connection)
     {
         var ids = new List<string>();
         using var cmd = connection.CreateCommand();
-        cmd.CommandText = "select character_id from cabinet;";
+        cmd.CommandText = "select character_id from cabinet order by position;";
         using var reader = cmd.ExecuteReader();
         while (reader.Read()) ids.Add(reader.GetString(0));
         return ids;
@@ -218,7 +246,7 @@ public sealed class SaveGameStore
     {
         var rows = new List<T>();
         using var cmd = connection.CreateCommand();
-        cmd.CommandText = $"select payload_json from {table};";
+        cmd.CommandText = $"select payload_json from {table} order by id;";
         using var reader = cmd.ExecuteReader();
         while (reader.Read())
         {
