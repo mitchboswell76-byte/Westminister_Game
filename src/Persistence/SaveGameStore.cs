@@ -16,6 +16,7 @@ public sealed class SaveGameStore
     private const string ManifestFileName = "manifest.json";
     private const string StateFileName = "state.sqlite";
     private const string SaveFileExtension = ".westminster";
+    private static readonly Encoding Utf8NoBom = new UTF8Encoding(encoderShouldEmitUTF8Identifier: false);
 
     public void SaveGame(string path, GameState state, GameRng rng, SaveSettings settings, bool isAutosave = false)
     {
@@ -37,7 +38,7 @@ public sealed class SaveGameStore
 
             var manifest = BuildManifest(state, rng, settings);
             var manifestPath = Path.Combine(tempDir, ManifestFileName);
-            File.WriteAllText(manifestPath, JsonSerializer.Serialize(manifest, JsonSupport.Options), Encoding.UTF8);
+            File.WriteAllText(manifestPath, JsonSerializer.Serialize(manifest, JsonSupport.Options), Utf8NoBom);
 
             var tempArchivePath = Path.Combine(tempDir, "save.tar.gz");
             using (var file = File.Create(tempArchivePath))
@@ -73,9 +74,14 @@ public sealed class SaveGameStore
             }
 
             using var stream = entry.DataStream ?? throw new InvalidOperationException("Manifest entry did not contain a stream.");
-            using var mem = new MemoryStream();
-            stream.CopyTo(mem);
-            var save = JsonSerializer.Deserialize<SaveGameStructure>(mem.ToArray(), JsonSupport.Options);
+            using var textReader = new StreamReader(stream, Encoding.UTF8, detectEncodingFromByteOrderMarks: true, leaveOpen: false);
+            var json = textReader.ReadToEnd();
+            if (json.Length > 0 && json[0] == '\uFEFF')
+            {
+                json = json[1..];
+            }
+
+            var save = JsonSerializer.Deserialize<SaveGameStructure>(json, JsonSupport.Options);
             return save ?? throw new InvalidOperationException("Failed to deserialize save manifest.");
         }
 
