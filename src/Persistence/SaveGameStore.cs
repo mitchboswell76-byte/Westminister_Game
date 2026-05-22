@@ -206,6 +206,7 @@ public sealed class SaveGameStore
         state.Characters.AddRange(characters);
         state.Constituencies.AddRange(ReadJsonRows<Constituency>(connection, "constituencies"));
         state.Policies.AddRange(ReadJsonRows<PolicyLever>(connection, "policies"));
+        state.Pops.AddRange(ReadJsonRows<Pop>(connection, "pops"));
         state.SchemesActive.AddRange(ReadJsonRows<Scheme>(connection, "schemes"));
         state.EventQueueToday.AddRange(ReadJsonRows<GameEvent>(connection, "events"));
 
@@ -256,6 +257,7 @@ public sealed class SaveGameStore
 
     private static List<T> ReadJsonRows<T>(SqliteConnection connection, string table)
     {
+        if (!TableExists(connection, table)) return [];
         var rows = new List<T>();
         using var cmd = connection.CreateCommand();
         cmd.CommandText = $"select payload_json from {table} order by id;";
@@ -288,6 +290,15 @@ public sealed class SaveGameStore
             jsonParam.Value = row.Json;
             cmd.ExecuteNonQuery();
         }
+    }
+
+    private static bool TableExists(SqliteConnection connection, string table)
+    {
+        using var cmd = connection.CreateCommand();
+        cmd.CommandText = "select 1 from sqlite_master where type = 'table' and name = $name limit 1;";
+        cmd.Parameters.AddWithValue("$name", table);
+        var result = cmd.ExecuteScalar();
+        return result is not null;
     }
 
     private static void Execute(SqliteConnection connection, SqliteTransaction transaction, string sql)

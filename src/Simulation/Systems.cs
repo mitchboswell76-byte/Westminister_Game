@@ -1,3 +1,4 @@
+using Westminster.Pops;
 using Westminster.Core;
 using Westminster.Policy;
 using GameCharacter = Westminster.Core.Character;
@@ -19,7 +20,7 @@ public sealed class NoOpSystems : IInputProcessor, ISchemeSystem, IEventSystem, 
     public void TickScheme(Scheme scheme, GameState s, GameRng rng) { }
     public void ResolveEvent(GameEvent ev, GameState s, GameRng rng) { }
     public void TickCharacter(GameCharacter character, GameState s, GameRng rng) { }
-    public void TickMonthly(GameState s, GameRng rng) { PolicyEngine.TickMonthly(s); s.MonthlyHookCount++; }
+    public void TickMonthly(GameState s, GameRng rng) { PolicyEngine.TickMonthly(s); PopSystem.TickMonthly(s); s.MonthlyHookCount++; }
     public void TickAnnual(GameState s, GameRng rng) => s.AnnualHookCount++;
     public void AutoSave(GameState s) => s.AutosaveHookCount++;
     public void MarkUiDirty(GameState s) { }
