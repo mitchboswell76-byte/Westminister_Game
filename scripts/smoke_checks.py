@@ -21,3 +21,16 @@ autosave=sum(1 for i in range(1,ticks+1) if i%7==0)
 assert (monthly, annual, autosave)==(13,1,57)
 
 print('smoke_checks_ok monthly=13 annual=1 autosave=57')
+
+
+# policy content checks
+policy_dir = root / "content" / "policies"
+all_levers=[]
+for f in sorted(policy_dir.glob("*.json")):
+  lines=[ln for ln in f.read_text().splitlines() if not ln.lstrip().startswith("//")]
+  all_levers.extend(json.loads("\n".join(lines)))
+mvp=[x for x in all_levers if x.get("phase_tag")=="MVP"]
+assert len(mvp)==50
+ids=[x["id"] for x in mvp]
+assert len(ids)==len(set(ids))
+assert all(len(x.get("effects",[]))>0 for x in mvp)

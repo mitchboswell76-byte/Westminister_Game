@@ -326,7 +326,26 @@ public class FoundationTests
         var state = BuildState();
         state.TickCount = 100;
         state.MonthlyHookCount = 3;
-        state.Policies.Add(new PolicyLever("policy_vat","VAT","tax","indirect","slider",0,30,1,20,20,"%","int",[],[],1,"MVP"));
+        state.Policies.Add(new PolicyLever(
+            Id: "policy_vat",
+            Name: "VAT",
+            Category: "tax",
+            Subcategory: "indirect",
+            Type: "slider",
+            Min: 0,
+            Max: 30,
+            Step: 1,
+            Default: 20,
+            CurrentValue: 20,
+            EnumValues: new List<string>(),
+            Unit: "%",
+            DisplayFormat: "int",
+            Dependencies: new List<string>(),
+            Effects: new List<Westminster.Policy.PolicyEffect>(),
+            FactionReactions: new Dictionary<string, double>(),
+            EnabledByIdeologies: new List<string>(),
+            DisabledByGovernmentTypes: new List<string>(),
+            PhaseTag: "MVP"));
         var cabinetMember = state.Player with { Id = "char_cabinet_1", Name = new CharacterName("Casey", "Minister", null), IsPlayer = false };
         state.Characters.Add(cabinetMember);
         state.Cabinet.Add(cabinetMember);

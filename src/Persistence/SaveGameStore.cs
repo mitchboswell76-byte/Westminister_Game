@@ -16,6 +16,7 @@ public sealed class SaveGameStore
     private const string ManifestFileName = "manifest.json";
     private const string StateFileName = "state.sqlite";
     private const string SaveFileExtension = ".westminster";
+    private static readonly Encoding Utf8NoBom = new UTF8Encoding(encoderShouldEmitUTF8Identifier: false);
 
     public void SaveGame(string path, GameState state, GameRng rng, SaveSettings settings, bool isAutosave = false)
     {
@@ -37,7 +38,7 @@ public sealed class SaveGameStore
 
             var manifest = BuildManifest(state, rng, settings);
             var manifestPath = Path.Combine(tempDir, ManifestFileName);
-            File.WriteAllText(manifestPath, JsonSerializer.Serialize(manifest, JsonSupport.Options), Encoding.UTF8);
+            File.WriteAllText(manifestPath, JsonSerializer.Serialize(manifest, JsonSupport.Options), Utf8NoBom);
 
             var tempArchivePath = Path.Combine(tempDir, "save.tar.gz");
             using (var file = File.Create(tempArchivePath))
@@ -73,9 +74,14 @@ public sealed class SaveGameStore
             }
 
             using var stream = entry.DataStream ?? throw new InvalidOperationException("Manifest entry did not contain a stream.");
-            using var mem = new MemoryStream();
-            stream.CopyTo(mem);
-            var save = JsonSerializer.Deserialize<SaveGameStructure>(mem.ToArray(), JsonSupport.Options);
+            using var textReader = new StreamReader(stream, Encoding.UTF8, detectEncodingFromByteOrderMarks: true, leaveOpen: false);
+            var json = textReader.ReadToEnd();
+            if (json.Length > 0 && json[0] == '\uFEFF')
+            {
+                json = json[1..];
+            }
+
+            var save = JsonSerializer.Deserialize<SaveGameStructure>(json, JsonSupport.Options);
             return save ?? throw new InvalidOperationException("Failed to deserialize save manifest.");
         }
 
@@ -123,18 +129,19 @@ public sealed class SaveGameStore
         connection.Open();
         using var transaction = connection.BeginTransaction();
 
-        Execute(connection, transaction, "create table world_state(date text not null, tick_count integer not null, rng_seed integer not null, rng_call_count integer not null, rng_s0 integer not null, rng_s1 integer not null, rng_s2 integer not null, rng_s3 integer not null, player_id text not null, monthly_hook_count integer not null, annual_hook_count integer not null, autosave_hook_count integer not null);");
+        Execute(connection, transaction, "create table world_state(date text not null, tick_count integer not null, rng_seed integer not null, rng_call_count integer not null, rng_s0 integer not null, rng_s1 integer not null, rng_s2 integer not null, rng_s3 integer not null, player_id text not null, monthly_hook_count integer not null, annual_hook_count integer not null, autosave_hook_count integer not null, government_type text not null);");
         Execute(connection, transaction, "create table characters(id text primary key, payload_json text not null);");
         Execute(connection, transaction, "create table cabinet(position integer not null, character_id text not null, primary key(position));");
         Execute(connection, transaction, "create table constituencies(id text primary key, payload_json text not null);");
         Execute(connection, transaction, "create table policies(id text primary key, payload_json text not null);");
         Execute(connection, transaction, "create table schemes(id text primary key, payload_json text not null);");
         Execute(connection, transaction, "create table events(id text primary key, payload_json text not null);");
+        Execute(connection, transaction, "create table metrics(id text primary key, value real not null);");
 
         using (var cmd = connection.CreateCommand())
         {
             cmd.Transaction = transaction;
-            cmd.CommandText = "insert into world_state(date, tick_count, rng_seed, rng_call_count, rng_s0, rng_s1, rng_s2, rng_s3, player_id, monthly_hook_count, annual_hook_count, autosave_hook_count) values ($date,$tick,$seed,$callCount,$s0,$s1,$s2,$s3,$player,$monthly,$annual,$autosave);";
+            cmd.CommandText = "insert into world_state(date, tick_count, rng_seed, rng_call_count, rng_s0, rng_s1, rng_s2, rng_s3, player_id, monthly_hook_count, annual_hook_count, autosave_hook_count, government_type) values ($date,$tick,$seed,$callCount,$s0,$s1,$s2,$s3,$player,$monthly,$annual,$autosave,$governmentType);";
             cmd.Parameters.AddWithValue("$date", state.Date.ToString("yyyy-MM-dd"));
             cmd.Parameters.AddWithValue("$tick", unchecked((long)state.TickCount));
             cmd.Parameters.AddWithValue("$seed", unchecked((long)rng.Seed));
@@ -147,6 +154,7 @@ public sealed class SaveGameStore
             cmd.Parameters.AddWithValue("$monthly", state.MonthlyHookCount);
             cmd.Parameters.AddWithValue("$annual", state.AnnualHookCount);
             cmd.Parameters.AddWithValue("$autosave", state.AutosaveHookCount);
+            cmd.Parameters.AddWithValue("$governmentType", state.GovernmentType);
             cmd.ExecuteNonQuery();
         }
 
@@ -155,6 +163,7 @@ public sealed class SaveGameStore
         InsertJsonRows(connection, transaction, "policies", state.Policies.Select(x => (x.Id, JsonSerializer.Serialize(x, JsonSupport.Options))));
         InsertJsonRows(connection, transaction, "schemes", state.SchemesActive.Select(x => (x.Id, JsonSerializer.Serialize(x, JsonSupport.Options))));
         InsertJsonRows(connection, transaction, "events", state.EventQueueToday.Select(x => (x.Id, JsonSerializer.Serialize(x, JsonSupport.Options))));
+        InsertMetricRows(connection, transaction, state.MetricsLedger.Snapshot());
 
         using (var cmd = connection.CreateCommand())
         {
@@ -207,14 +216,16 @@ public sealed class SaveGameStore
             if (found is not null) state.Cabinet.Add(found);
         }
 
+        foreach (var m in ReadMetricRows(connection)) state.MetricsLedger.Add(m.Key, m.Value);
+
         var rng = new GameRng(new RngState(row.RngSeed, row.RngCallCount, row.S0, row.S1, row.S2, row.S3));
         return new LoadedGame(state, rng);
     }
 
-    private static (DateOnly Date, ulong TickCount, ulong RngSeed, ulong RngCallCount, ulong S0, ulong S1, ulong S2, ulong S3, string PlayerId, int Monthly, int Annual, int Autosave) ReadWorldState(SqliteConnection connection)
+    private static (DateOnly Date, ulong TickCount, ulong RngSeed, ulong RngCallCount, ulong S0, ulong S1, ulong S2, ulong S3, string PlayerId, int Monthly, int Annual, int Autosave, string GovernmentType) ReadWorldState(SqliteConnection connection)
     {
         using var cmd = connection.CreateCommand();
-        cmd.CommandText = "select date, tick_count, rng_seed, rng_call_count, rng_s0, rng_s1, rng_s2, rng_s3, player_id, monthly_hook_count, annual_hook_count, autosave_hook_count from world_state limit 1;";
+        cmd.CommandText = "select date, tick_count, rng_seed, rng_call_count, rng_s0, rng_s1, rng_s2, rng_s3, player_id, monthly_hook_count, annual_hook_count, autosave_hook_count, government_type from world_state limit 1;";
         using var reader = cmd.ExecuteReader();
         if (!reader.Read()) throw new InvalidOperationException("No world state found in save.");
         return (
@@ -229,7 +240,8 @@ public sealed class SaveGameStore
             reader.GetString(8),
             reader.GetInt32(9),
             reader.GetInt32(10),
-            reader.GetInt32(11));
+            reader.GetInt32(11),
+            reader.GetString(12));
     }
 
     private static List<string> ReadCabinetIds(SqliteConnection connection)
@@ -284,5 +296,25 @@ public sealed class SaveGameStore
         cmd.Transaction = transaction;
         cmd.CommandText = sql;
         cmd.ExecuteNonQuery();
+    }
+
+    private static void InsertMetricRows(SqliteConnection connection, SqliteTransaction transaction, Dictionary<string, double> rows)
+    {
+        using var cmd = connection.CreateCommand();
+        cmd.Transaction = transaction;
+        cmd.CommandText = "insert into metrics(id, value) values ($id, $value);";
+        var idParam = cmd.CreateParameter(); idParam.ParameterName = "$id"; cmd.Parameters.Add(idParam);
+        var valueParam = cmd.CreateParameter(); valueParam.ParameterName = "$value"; cmd.Parameters.Add(valueParam);
+        foreach (var row in rows.OrderBy(x => x.Key, StringComparer.Ordinal)) { idParam.Value = row.Key; valueParam.Value = row.Value; cmd.ExecuteNonQuery(); }
+    }
+
+    private static Dictionary<string, double> ReadMetricRows(SqliteConnection connection)
+    {
+        var rows = new Dictionary<string, double>(StringComparer.Ordinal);
+        using var cmd = connection.CreateCommand();
+        cmd.CommandText = "select id, value from metrics order by id;";
+        using var reader = cmd.ExecuteReader();
+        while (reader.Read()) rows[reader.GetString(0)] = reader.GetDouble(1);
+        return rows;
     }
 }

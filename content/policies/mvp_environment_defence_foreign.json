@@ -1,0 +1,201 @@
+// Effect magnitudes are placeholders for playtesting calibration, not authoritative economic forecasts.
+[
+  {
+    "id": "policy_mvp_25",
+    "name": "MVP Policy 25",
+    "category": "env",
+    "subcategory": "mvp",
+    "type": "slider",
+    "min": 0,
+    "max": 1,
+    "step": 0.01,
+    "default": 0.5,
+    "current_value": 0.5,
+    "enum_values": [],
+    "unit": "index",
+    "display_format": "0.00",
+    "dependencies": [],
+    "effects": [
+      {
+        "function": "linear",
+        "target": "metric.gdp_growth",
+        "slope": 0.01,
+        "intercept": 0.5
+      }
+    ],
+    "faction_reactions": {
+      "faction_unions": 0.2,
+      "faction_city_finance": -0.2
+    },
+    "enabled_by_ideologies": [
+      "*"
+    ],
+    "disabled_by_government_types": [],
+    "phase_tag": "MVP"
+  },
+  {
+    "id": "policy_mvp_26",
+    "name": "MVP Policy 26",
+    "category": "env",
+    "subcategory": "mvp",
+    "type": "slider",
+    "min": 0,
+    "max": 1,
+    "step": 0.01,
+    "default": 0.5,
+    "current_value": 0.5,
+    "enum_values": [],
+    "unit": "index",
+    "display_format": "0.00",
+    "dependencies": [],
+    "effects": [
+      {
+        "function": "linear",
+        "target": "metric.gdp_growth",
+        "slope": 0.01,
+        "intercept": 0.5
+      }
+    ],
+    "faction_reactions": {
+      "faction_unions": 0.2,
+      "faction_city_finance": -0.2
+    },
+    "enabled_by_ideologies": [
+      "*"
+    ],
+    "disabled_by_government_types": [],
+    "phase_tag": "MVP"
+  },
+  {
+    "id": "policy_mvp_27",
+    "name": "MVP Policy 27",
+    "category": "env",
+    "subcategory": "mvp",
+    "type": "slider",
+    "min": 0,
+    "max": 1,
+    "step": 0.01,
+    "default": 0.5,
+    "current_value": 0.5,
+    "enum_values": [],
+    "unit": "index",
+    "display_format": "0.00",
+    "dependencies": [],
+    "effects": [
+      {
+        "function": "linear",
+        "target": "metric.gdp_growth",
+        "slope": 0.01,
+        "intercept": 0.5
+      }
+    ],
+    "faction_reactions": {
+      "faction_unions": 0.2,
+      "faction_city_finance": -0.2
+    },
+    "enabled_by_ideologies": [
+      "*"
+    ],
+    "disabled_by_government_types": [],
+    "phase_tag": "MVP"
+  },
+  {
+    "id": "policy_mvp_28",
+    "name": "MVP Policy 28",
+    "category": "env",
+    "subcategory": "mvp",
+    "type": "slider",
+    "min": 0,
+    "max": 1,
+    "step": 0.01,
+    "default": 0.5,
+    "current_value": 0.5,
+    "enum_values": [],
+    "unit": "index",
+    "display_format": "0.00",
+    "dependencies": [],
+    "effects": [
+      {
+        "function": "linear",
+        "target": "metric.gdp_growth",
+        "slope": 0.01,
+        "intercept": 0.5
+      }
+    ],
+    "faction_reactions": {
+      "faction_unions": 0.2,
+      "faction_city_finance": -0.2
+    },
+    "enabled_by_ideologies": [
+      "*"
+    ],
+    "disabled_by_government_types": [],
+    "phase_tag": "MVP"
+  },
+  {
+    "id": "policy_mvp_29",
+    "name": "MVP Policy 29",
+    "category": "env",
+    "subcategory": "mvp",
+    "type": "slider",
+    "min": 0,
+    "max": 1,
+    "step": 0.01,
+    "default": 0.5,
+    "current_value": 0.5,
+    "enum_values": [],
+    "unit": "index",
+    "display_format": "0.00",
+    "dependencies": [],
+    "effects": [
+      {
+        "function": "linear",
+        "target": "metric.gdp_growth",
+        "slope": 0.01,
+        "intercept": 0.5
+      }
+    ],
+    "faction_reactions": {
+      "faction_unions": 0.2,
+      "faction_city_finance": -0.2
+    },
+    "enabled_by_ideologies": [
+      "*"
+    ],
+    "disabled_by_government_types": [],
+    "phase_tag": "MVP"
+  },
+  {
+    "id": "policy_mvp_30",
+    "name": "MVP Policy 30",
+    "category": "env",
+    "subcategory": "mvp",
+    "type": "slider",
+    "min": 0,
+    "max": 1,
+    "step": 0.01,
+    "default": 0.5,
+    "current_value": 0.5,
+    "enum_values": [],
+    "unit": "index",
+    "display_format": "0.00",
+    "dependencies": [],
+    "effects": [
+      {
+        "function": "linear",
+        "target": "metric.gdp_growth",
+        "slope": 0.01,
+        "intercept": 0.5
+      }
+    ],
+    "faction_reactions": {
+      "faction_unions": 0.2,
+      "faction_city_finance": -0.2
+    },
+    "enabled_by_ideologies": [
+      "*"
+    ],
+    "disabled_by_government_types": [],
+    "phase_tag": "MVP"
+  }
+]
