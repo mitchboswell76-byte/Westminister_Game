@@ -15,6 +15,9 @@ public class GameState
     public List<PolicyLever> Policies { get; } = [];
     public List<Pop> Pops { get; } = [];
     public List<ElectionResult> ElectionResults { get; } = [];
+    public List<UkRegion> UkRegions { get; } = [];
+    public List<ConstituencyMapBinding> ConstituencyMapBindings { get; } = [];
+    public List<MapTopologyMetadata> MapTopologies { get; } = [];
     public List<Scheme> SchemesActive { get; } = [];
     public List<GameEvent> EventQueueToday { get; } = [];
 

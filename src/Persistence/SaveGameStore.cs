@@ -139,6 +139,9 @@ public sealed class SaveGameStore
         Execute(connection, transaction, "create table events(id text primary key, payload_json text not null);");
         Execute(connection, transaction, "create table metrics(id text primary key, value real not null);");
         Execute(connection, transaction, "create table election_results(id text primary key, payload_json text not null);");
+        Execute(connection, transaction, "create table map_topologies(id text primary key, payload_json text not null);");
+        Execute(connection, transaction, "create table constituency_map_bindings(id text primary key, payload_json text not null);");
+        Execute(connection, transaction, "create table uk_regions(id text primary key, payload_json text not null);");
 
         using (var cmd = connection.CreateCommand())
         {
@@ -168,6 +171,9 @@ public sealed class SaveGameStore
         InsertJsonRows(connection, transaction, "events", state.EventQueueToday.Select(x => (x.Id, JsonSerializer.Serialize(x, JsonSupport.Options))));
         InsertMetricRows(connection, transaction, state.MetricsLedger.Snapshot());
         InsertJsonRows(connection, transaction, "election_results", state.ElectionResults.OrderBy(x => x.Id, StringComparer.Ordinal).Select(x => (x.Id, JsonSerializer.Serialize(x, JsonSupport.Options))));
+        InsertJsonRows(connection, transaction, "uk_regions", state.UkRegions.OrderBy(x => x.Id, StringComparer.Ordinal).Select(x => (x.Id, JsonSerializer.Serialize(x, JsonSupport.Options))));
+        InsertJsonRows(connection, transaction, "constituency_map_bindings", state.ConstituencyMapBindings.OrderBy(x => x.ConstituencyId, StringComparer.Ordinal).Select(x => (x.ConstituencyId, JsonSerializer.Serialize(x, JsonSupport.Options))));
+        InsertJsonRows(connection, transaction, "map_topologies", state.MapTopologies.OrderBy(x => x.Id, StringComparer.Ordinal).Select(x => (x.Id, JsonSerializer.Serialize(x, JsonSupport.Options))));
 
         using (var cmd = connection.CreateCommand())
         {
@@ -214,6 +220,9 @@ public sealed class SaveGameStore
         state.SchemesActive.AddRange(ReadJsonRows<Scheme>(connection, "schemes"));
         state.EventQueueToday.AddRange(ReadJsonRows<GameEvent>(connection, "events"));
         state.ElectionResults.AddRange(ReadJsonRows<ElectionResult>(connection, "election_results"));
+        state.UkRegions.AddRange(ReadJsonRows<UkRegion>(connection, "uk_regions"));
+        state.ConstituencyMapBindings.AddRange(ReadJsonRows<ConstituencyMapBinding>(connection, "constituency_map_bindings"));
+        state.MapTopologies.AddRange(ReadJsonRows<MapTopologyMetadata>(connection, "map_topologies"));
 
         var cabinetIds = ReadCabinetIds(connection);
         foreach (var id in cabinetIds)

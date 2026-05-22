@@ -4,6 +4,7 @@ using Westminster.Core;
 using Westminster.Pops;
 using Westminster.Simulation;
 using Westminster.Election;
+using Westminster.UK;
 using GameCharacter = Westminster.Core.Character;
 
 static string FindRepositoryRoot()
@@ -38,6 +39,9 @@ if (state.Constituencies.Count == 0)
 {
     state.Constituencies.AddRange(ElectionQueries.CreateMvpConstituencies());
 }
+state.UkRegions.AddRange(UkRegionSeeder.CreateMvpRegions());
+state.ConstituencyMapBindings.AddRange(UkMapSeeder.CreateMvpBindings(state.Constituencies));
+state.MapTopologies.AddRange(UkMapSeeder.CreateMvpTopologies());
 PolicyEngine.ApplyChange(state, "policy_vat_standard_rate", 0.22);
 var rng = new GameRng(123456);
 var systems = new NoOpSystems();
@@ -58,3 +62,7 @@ Console.WriteLine($"election_constituencies={election.ConstituencyResults.Count}
 Console.WriteLine($"election_total_seats={election.TotalSeats}");
 Console.WriteLine($"election_winner={election.WinningPartyId}");
 Console.WriteLine($"election_party_count={election.PartyResults.Count}");
+
+Console.WriteLine($"uk_regions_loaded={state.UkRegions.Count}");
+Console.WriteLine($"map_bindings_loaded={state.ConstituencyMapBindings.Count}");
+Console.WriteLine($"constituencies_bound={UkMapQueries.ValidateEveryConstituencyHasRegionBinding(state.Constituencies, state.ConstituencyMapBindings)}");
