@@ -1,0 +1,18 @@
+{
+  "id": "features_mvp_constituencies",
+  "topology_id": "topology_mvp_constituencies",
+  "features": [
+    {"id":"feature_mvp_01","name":"MVP Constituency 1","region_id":"region_north_east","constituency_id":"constituency_mvp_01","topojson_object_id":"mvp_topo_constituency_mvp_01"},
+    {"id":"feature_mvp_02","name":"MVP Constituency 2","region_id":"region_north_west","constituency_id":"constituency_mvp_02","topojson_object_id":"mvp_topo_constituency_mvp_02"},
+    {"id":"feature_mvp_03","name":"MVP Constituency 3","region_id":"region_yorkshire_and_humber","constituency_id":"constituency_mvp_03","topojson_object_id":"mvp_topo_constituency_mvp_03"},
+    {"id":"feature_mvp_04","name":"MVP Constituency 4","region_id":"region_east_midlands","constituency_id":"constituency_mvp_04","topojson_object_id":"mvp_topo_constituency_mvp_04"},
+    {"id":"feature_mvp_05","name":"MVP Constituency 5","region_id":"region_west_midlands","constituency_id":"constituency_mvp_05","topojson_object_id":"mvp_topo_constituency_mvp_05"},
+    {"id":"feature_mvp_06","name":"MVP Constituency 6","region_id":"region_east_of_england","constituency_id":"constituency_mvp_06","topojson_object_id":"mvp_topo_constituency_mvp_06"},
+    {"id":"feature_mvp_07","name":"MVP Constituency 7","region_id":"region_london","constituency_id":"constituency_mvp_07","topojson_object_id":"mvp_topo_constituency_mvp_07"},
+    {"id":"feature_mvp_08","name":"MVP Constituency 8","region_id":"region_south_east","constituency_id":"constituency_mvp_08","topojson_object_id":"mvp_topo_constituency_mvp_08"},
+    {"id":"feature_mvp_09","name":"MVP Constituency 9","region_id":"region_south_west","constituency_id":"constituency_mvp_09","topojson_object_id":"mvp_topo_constituency_mvp_09"},
+    {"id":"feature_mvp_10","name":"MVP Constituency 10","region_id":"region_wales","constituency_id":"constituency_mvp_10","topojson_object_id":"mvp_topo_constituency_mvp_10"},
+    {"id":"feature_mvp_11","name":"MVP Constituency 11","region_id":"region_scotland","constituency_id":"constituency_mvp_11","topojson_object_id":"mvp_topo_constituency_mvp_11"},
+    {"id":"feature_mvp_12","name":"MVP Constituency 12","region_id":"region_northern_ireland","constituency_id":"constituency_mvp_12","topojson_object_id":"mvp_topo_constituency_mvp_12"}
+  ]
+}

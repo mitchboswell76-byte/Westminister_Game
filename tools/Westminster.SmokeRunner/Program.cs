@@ -42,6 +42,8 @@ if (state.Constituencies.Count == 0)
 state.UkRegions.AddRange(UkRegionSeeder.CreateMvpRegions());
 state.ConstituencyMapBindings.AddRange(UkMapSeeder.CreateMvpBindings(state.Constituencies));
 state.MapTopologies.AddRange(UkMapSeeder.CreateMvpTopologies());
+var loadedTopologyMetadata = UkTopologyLoader.LoadTopologyMetadataFromRepository();
+var loadedFeatureCollection = UkTopologyLoader.LoadConstituencyFeaturesFromRepository();
 PolicyEngine.ApplyChange(state, "policy_vat_standard_rate", 0.22);
 var rng = new GameRng(123456);
 var systems = new NoOpSystems();
@@ -66,3 +68,9 @@ Console.WriteLine($"election_party_count={election.PartyResults.Count}");
 Console.WriteLine($"uk_regions_loaded={state.UkRegions.Count}");
 Console.WriteLine($"map_bindings_loaded={state.ConstituencyMapBindings.Count}");
 Console.WriteLine($"constituencies_bound={UkMapQueries.ValidateEveryConstituencyHasRegionBinding(state.Constituencies, state.ConstituencyMapBindings)}");
+
+var topologyFeatureValidationOk = UkTopologyValidator.ValidateFeatures(loadedFeatureCollection.Features, out var topologyFeatureValidationMessage);
+var topologyBindingValidationOk = UkTopologyValidator.ValidateBindingsAgainstFeatures(state.ConstituencyMapBindings, loadedFeatureCollection.Features, out var topologyBindingValidationMessage);
+Console.WriteLine($"topology_metadata_loaded={loadedTopologyMetadata.Count}");
+Console.WriteLine($"topology_features_loaded={loadedFeatureCollection.Features.Count}");
+Console.WriteLine($"topology_bindings_valid={topologyFeatureValidationOk && topologyBindingValidationOk}");

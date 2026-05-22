@@ -1,0 +1,10 @@
+[
+  {
+    "id": "topology_mvp_constituencies",
+    "name": "MVP Constituency Placeholder Topology",
+    "source": "fixture_step8b",
+    "projection": "epsg:4326",
+    "feature_count": 12,
+    "phase_tag": "mvp_step8b"
+  }
+]

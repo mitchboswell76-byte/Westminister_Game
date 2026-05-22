@@ -217,3 +217,13 @@ Next recommended action:
 - **Result:** Step 8 is now partially complete (8A foundation); deterministic region + binding substrate is present without implementing full visual map/topology import yet.
 - **Known limitations:** Uses MVP fixture topology metadata and placeholder object/LAD IDs; full ONS/BGC topology loading and visual rendering remain for Step 8B+.
 - **Next recommended step (current):** Step 8B topology loader or visual map scaffold.
+
+
+## 2026-05-22 — PR #14 — Implement Step 8B UK topology loader
+
+- **Summary of changes:** Added a fixture-based UK topology asset contract with repository-root content loading, deterministic ordered deserialization, topology/feature validation helpers, smoke runner topology counters, and dedicated Step 8B loader/validator tests.
+- **Files/areas changed:** `content/map/uk/*`, `src/Core/Models.cs`, `src/UK/UkTopologyLoader.cs`, `src/UK/UkTopologyValidator.cs`, `tools/Westminster.SmokeRunner/Program.cs`, `tests/Westminster.Tests/UkTopologyLoaderTests.cs`, `scripts/smoke_checks.py`, `docs/DEVELOPMENT_HISTORY.md`.
+- **Tests/checks run:** Python guard and smoke checks; .NET checks deferred to CI when local dotnet unavailable.
+- **Result:** Step 8 remains in progress; Step 8B topology loader + asset contract foundation is complete without visual map UI.
+- **Known limitations:** Topology assets are MVP fixtures only; full ONS/BGC ingestion and rendered map flow remain pending.
+- **Next recommended step (current):** Step 8C visual map scaffold or topology import expansion.

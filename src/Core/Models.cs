@@ -34,6 +34,8 @@ public record ElectionResult(string Id,DateOnly Date,string System,List<Constitu
 public record UkRegion(string Id,string Name,string Country,int SortOrder);
 public record MapTopologyMetadata(string Id,string Name,string Source,string Projection,int FeatureCount,string PhaseTag);
 public record ConstituencyMapBinding(string ConstituencyId,string RegionId,string TopojsonObjectId,string LadId);
+public record MapFeature(string Id,string Name,string RegionId,string ConstituencyId,string TopojsonObjectId);
+public record MapFeatureCollection(string Id,string TopologyId,List<MapFeature> Features);
 public record SaveSettings(int Speed,bool AutopauseEvents,bool Ironman);
 public record SaveGameStructure(int SaveVersion,string GameVersion,DateOnly GameDate,ulong RngSeed,ulong RngCallCount,string PlayerCharacterId,string WorldStateDb,List<JsonElement> CharactersDirty,SaveSettings Settings);
 

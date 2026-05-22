@@ -77,3 +77,20 @@ uk_sources = "\n".join([
 ])
 for rid in region_ids:
   assert rid in uk_sources, f"expected region id not found in UK/pop sources: {rid}"
+
+
+# UK topology fixture checks
+for rel in [
+  "content/map/uk/mvp_topology_metadata.json",
+  "content/map/uk/mvp_constituency_features.json",
+  "src/UK/UkTopologyLoader.cs",
+  "src/UK/UkTopologyValidator.cs",
+  "tests/Westminster.Tests/UkTopologyLoaderTests.cs",
+]:
+  assert (root / rel).exists(), f"missing expected topology file: {rel}"
+
+feature_fixture = json.loads((root / "content" / "map" / "uk" / "mvp_constituency_features.json").read_text())
+assert len(feature_fixture.get("features", [])) >= 12
+fixture_blob = json.dumps(feature_fixture)
+for rid in region_ids:
+  assert rid in fixture_blob or rid in uk_sources, f"region id missing from fixture/source: {rid}"
