@@ -102,7 +102,43 @@ public class ElectionSystemTests
 
     private static GameState BuildState() => new(new DateOnly(2026,1,1), new GameCharacter("char_player", new CharacterName("Test","Player",null), new DateOnly(1980,1,1), null, "nonbinary", "unknown", "none", "unspecified", null, null, 0, "none", new CharacterAttributes(10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10), new CharacterHidden(10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10), [], "ideology_none", 50, 0, 100, 0, [], [], [], [], [], new Dictionary<string, int>(), "none", [], 0, true, "player_created"));
 
-    private static string Canonicalize(ElectionResult r) => string.Join("|", r.ConstituencyResults.OrderBy(x=>x.ConstituencyId).Select(x => $"{x.ConstituencyId}:{x.WinnerPartyId}:{string.Join(',', x.VotesByParty.OrderBy(k=>k.Key).Select(k=>$\"{k.Key}={k.Value}\"))}"));
+    private static string Canonicalize(ElectionResult result)
+    {
+        var rows = result.ConstituencyResults
+            .OrderBy(x => x.ConstituencyId, StringComparer.Ordinal)
+            .Select(x =>
+            {
+                var votes = string.Join(
+                    ",",
+                    x.VotesByParty
+                        .OrderBy(kv => kv.Key, StringComparer.Ordinal)
+                        .Select(kv => $"{kv.Key}={kv.Value}"));
 
-    private static string FindRepositoryRoot(){ var cur=AppContext.BaseDirectory; while(!string.IsNullOrWhiteSpace(cur)){ if(File.Exists(Path.Combine(cur,"Westminster.sln"))) return cur; cur=Directory.GetParent(cur)?.FullName ?? "";} throw new InvalidOperationException(); }
+                var shares = string.Join(
+                    ",",
+                    x.VoteShareByParty
+                        .OrderBy(kv => kv.Key, StringComparer.Ordinal)
+                        .Select(kv => $"{kv.Key}={Math.Round(kv.Value, 10)}"));
+
+                return $"{x.ConstituencyId}:{x.WinnerPartyId}:{x.MajorityVotes}:{Math.Round(x.Turnout, 10)}:{votes}:{shares}";
+            });
+
+        return string.Join("|", rows);
+    }
+
+    private static string FindRepositoryRoot()
+    {
+        var cur = AppContext.BaseDirectory;
+        while (!string.IsNullOrWhiteSpace(cur))
+        {
+            if (File.Exists(Path.Combine(cur, "Westminster.sln")))
+            {
+                return cur;
+            }
+
+            cur = Directory.GetParent(cur)?.FullName ?? "";
+        }
+
+        throw new InvalidOperationException();
+    }
 }
