@@ -52,3 +52,8 @@ region_ids = [
 seed_source = (root / "src" / "Pops" / "PopSeeder.cs").read_text()
 for rid in region_ids:
   assert rid in seed_source, f"region id missing from pop seeder: {rid}"
+
+# election system static checks
+assert (root / "src" / "Election" / "ElectionSystem.cs").exists()
+assert (root / "src" / "Election" / "ElectionQueries.cs").exists()
+assert not (root / "src" / "Election" / "Placeholder.cs").exists()

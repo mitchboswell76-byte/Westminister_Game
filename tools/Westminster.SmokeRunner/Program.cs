@@ -3,6 +3,7 @@ using Westminster.Policy;
 using Westminster.Core;
 using Westminster.Pops;
 using Westminster.Simulation;
+using Westminster.Election;
 using GameCharacter = Westminster.Core.Character;
 
 static string FindRepositoryRoot()
@@ -33,6 +34,10 @@ var player = new GameCharacter(
 var state = new GameState(new DateOnly(2026, 1, 1), player);
 state.Policies.AddRange(ContentLoader.MvpOnly(ContentLoader.LoadPolicyLevers(repoRoot)));
 state.Pops.AddRange(PopSeeder.CreateMvpPops());
+if (state.Constituencies.Count == 0)
+{
+    state.Constituencies.AddRange(ElectionQueries.CreateMvpConstituencies());
+}
 PolicyEngine.ApplyChange(state, "policy_vat_standard_rate", 0.22);
 var rng = new GameRng(123456);
 var systems = new NoOpSystems();
@@ -47,3 +52,9 @@ Console.WriteLine($"date={state.Date:yyyy-MM-dd} tick_count={state.TickCount} mo
 Console.WriteLine($"pops_loaded={state.Pops.Count}");
 Console.WriteLine($"represented_population_total={PopQueries.TotalRepresentedPopulation(state.Pops)}");
 Console.WriteLine($"average_engagement={PopQueries.AverageEngagement(state.Pops):0.0000}");
+var election = ElectionSystem.ResolveFptpElection(state, rng);
+state.ElectionResults.Add(election);
+Console.WriteLine($"election_constituencies={election.ConstituencyResults.Count}");
+Console.WriteLine($"election_total_seats={election.TotalSeats}");
+Console.WriteLine($"election_winner={election.WinningPartyId}");
+Console.WriteLine($"election_party_count={election.PartyResults.Count}");

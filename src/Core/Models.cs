@@ -28,6 +28,9 @@ public record StrategicInitiative(string Id,string Name,string Tree,List<string>
 public record CoreIssue(string PolicyId,JsonElement PreferredValue,int Weight);
 public record Faction(string Id,string Name,int MembersPopCount,int ApprovalOfGovernment,int PowerScore,string IdeologyLean,List<CoreIssue> CoreIssues,string LeaderId,string? PetitionActiveId,string? InGovernmentPartyId);
 public record Pop(string Id,string RegionId,long Size,string Stratum,string Profession,Dictionary<string,double> IdeologyVector,string Ethnicity,string Religion,string AgeCohort,string Education,double Engagement);
+public record ElectionPartyResult(string PartyId,int Votes,double VoteShare,int Seats);
+public record ConstituencyElectionResult(string ConstituencyId,string WinnerPartyId,Dictionary<string,int> VotesByParty,Dictionary<string,double> VoteShareByParty,int MajorityVotes,double Turnout);
+public record ElectionResult(string Id,DateOnly Date,string System,List<ConstituencyElectionResult> ConstituencyResults,List<ElectionPartyResult> PartyResults,string WinningPartyId,int TotalSeats,string PhaseTag);
 public record SaveSettings(int Speed,bool AutopauseEvents,bool Ironman);
 public record SaveGameStructure(int SaveVersion,string GameVersion,DateOnly GameDate,ulong RngSeed,ulong RngCallCount,string PlayerCharacterId,string WorldStateDb,List<JsonElement> CharactersDirty,SaveSettings Settings);
 
