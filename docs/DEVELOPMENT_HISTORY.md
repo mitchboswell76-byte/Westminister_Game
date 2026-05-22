@@ -5,8 +5,8 @@
 WESTMINSTER is a political simulation project being built from `Westminster_PRD.md`, with a deterministic simulation-first foundation and incremental implementation following the PRD’s fixed AI build order.
 
 - **Target engine:** Godot 4.3 + C# (.NET 8).
-- **Current development phase:** Phase 1 MVP implementation in progress, with Steps 1–7 complete (assuming this PR passes).
-- **Current PRD build-order step:** Step 7 (Election system) is **done**.
+- **Current development phase:** Phase 1 MVP implementation in progress, with Steps 1–7 complete.
+- **Current PRD build-order step:** Step 8 (UK map/topology integration) is **next**.
 
 ---
 
@@ -144,7 +144,8 @@ Current repository state includes:
 - No implemented cabinet gameplay system yet (Step 9 not started).
 - No implemented MVP schemes yet (Step 10 not started).
 - UI remains stub-level; no real player-facing gameplay loop yet.
-- Test coverage is foundation-centric; feature-specific integration tests do not yet exist because those features are not yet implemented.
+- MVP automated coverage now includes policy (Step 5), pop (Step 6), and election (Step 7) systems with deterministic and persistence-focused tests.
+- Remaining coverage is still MVP-level; deeper end-to-end integration scenarios should be expanded in later phases.
 
 ---
 
@@ -153,7 +154,7 @@ Current repository state includes:
 ### Primary next PR
 **Proceed to Step 8 UK map (ONS BGC topology integration, PRD §16.2/§18.5).**
 
-Rationale: Steps 1–6 are now complete, so the fixed PRD build order moves directly to Step 7.
+Rationale: Steps 1–7 are now complete, and the fixed PRD build order now moves to Step 8.
 
 ---
 
