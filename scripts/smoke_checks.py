@@ -57,3 +57,23 @@ for rid in region_ids:
 assert (root / "src" / "Election" / "ElectionSystem.cs").exists()
 assert (root / "src" / "Election" / "ElectionQueries.cs").exists()
 assert not (root / "src" / "Election" / "Placeholder.cs").exists()
+
+
+# UK map data foundation static checks
+for rel in [
+  "src/UK/UkRegionSeeder.cs",
+  "src/UK/UkMapSeeder.cs",
+  "src/UK/UkMapQueries.cs",
+  "tests/Westminster.Tests/UkMapTests.cs",
+]:
+  assert (root / rel).exists(), f"missing expected uk map file: {rel}"
+
+placeholder = root / "src" / "UK" / "Placeholder.cs"
+assert not placeholder.exists(), "src/UK/Placeholder.cs should be removed for Step 8A"
+
+uk_sources = "\n".join([
+  (root / "src" / "UK" / "UkRegionSeeder.cs").read_text(),
+  (root / "src" / "Pops" / "PopSeeder.cs").read_text(),
+])
+for rid in region_ids:
+  assert rid in uk_sources, f"expected region id not found in UK/pop sources: {rid}"
