@@ -2,6 +2,7 @@ using Westminster.Core;
 using Westminster.Pops;
 using Westminster.Persistence;
 using Westminster.Simulation;
+using GameCharacter = Westminster.Core.Character;
 using Xunit;
 
 namespace Westminster.Tests;
@@ -66,7 +67,7 @@ public class PopSystemTests
 
         try
         {
-            store.SaveGame(path, state, new GameRng(123));
+            store.SaveGame(path, state, new GameRng(123), new SaveSettings(1, true, false));
             var loaded = store.LoadGame(path);
             Assert.Equal(state.Pops.Count, loaded.State.Pops.Count);
             Assert.Equal(state.Pops[0], loaded.State.Pops[0]);
@@ -80,7 +81,7 @@ public class PopSystemTests
 
     private static GameState BuildState()
     {
-        var player = new Character(
+        var player = new GameCharacter(
             "char_player", new CharacterName("Test", "Player", null), new DateOnly(1980, 1, 1), null, "nonbinary", "unknown", "none", "unspecified", null, null, 0, "none",
             new CharacterAttributes(10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10),
             new CharacterHidden(10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10),

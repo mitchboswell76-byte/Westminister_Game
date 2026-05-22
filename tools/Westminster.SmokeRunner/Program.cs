@@ -3,6 +3,7 @@ using Westminster.Policy;
 using Westminster.Core;
 using Westminster.Pops;
 using Westminster.Simulation;
+using GameCharacter = Westminster.Core.Character;
 
 static string FindRepositoryRoot()
 {
@@ -23,7 +24,7 @@ static string FindRepositoryRoot()
 
 var repoRoot = FindRepositoryRoot();
 
-var player = new Character(
+var player = new GameCharacter(
     "char_player", new CharacterName("Test", "Player", null), new DateOnly(1980, 1, 1), null, "nonbinary", "unknown", "none", "unspecified", null, null, 0, "none",
     new CharacterAttributes(10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10),
     new CharacterHidden(10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10),
