@@ -44,7 +44,7 @@ public static class ElectionSystem
             var baseTotalVotes = baselineVotes.Values.Sum();
             var shares = PartyIds.ToDictionary(p => p, p => baseTotalVotes > 0 ? baselineVotes[p] / (double)baseTotalVotes : (1d / PartyIds.Length), StringComparer.Ordinal);
 
-            var localNoise = rng.NextDouble(0d, 1d) - 0.5;
+            var localNoise = rng.NextDouble() - 0.5;
             foreach (var party in PartyIds)
             {
                 var incumbentBonus = baselineVotes[party] == baselineVotes.Values.Max() ? 0.0075 : 0d;
@@ -56,7 +56,7 @@ public static class ElectionSystem
 
             Normalize(shares);
 
-            var turnout = Math.Clamp(0.50 + (popEngagement * 0.3) + rng.NextDouble(0d, 0.04), 0.45, 0.85);
+            var turnout = Math.Clamp(0.50 + (popEngagement * 0.3) + (rng.NextDouble() * 0.04), 0.45, 0.85);
             var totalVotes = Math.Max(1, (int)Math.Round(constituency.Electorate * turnout, MidpointRounding.AwayFromZero));
             var votesByParty = PartyIds.ToDictionary(p => p, p => (int)Math.Round(shares[p] * totalVotes, MidpointRounding.AwayFromZero), StringComparer.Ordinal);
             ReconcileVotes(votesByParty, totalVotes);
@@ -93,7 +93,7 @@ public static class ElectionSystem
         var maxVotes = votesByParty.Values.Max();
         var tied = votesByParty.Where(kv => kv.Value == maxVotes).Select(kv => kv.Key).OrderBy(x => x, StringComparer.Ordinal).ToList();
         if (tied.Count == 1) return tied[0];
-        if (tied.Count == 2) return rng.NextDouble(0d, 1d) < 0.5 ? tied[0] : tied[1];
+        if (tied.Count == 2) return rng.NextDouble() < 0.5 ? tied[0] : tied[1];
         return tied[0];
     }
 
