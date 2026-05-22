@@ -21,7 +21,7 @@ WESTMINSTER is a political simulation project being built from `Westminster_PRD.
 | 5 | Policy engine with 50 MVP policies | Done | `src/Policy/PolicyEngine.cs`, `src/Policy/Effects.cs`, `content/policies/*.json`, `src/Persistence/ContentLoader.cs` | Policy engine, content loader, metrics ledger, and 50 MVP levers now integrated with save/load and smoke checks. | Proceed to Step 6 pop model (1,000 pops/12 regions). |
 | 6 | Pop model | Done | `src/Pops/PopSeeder.cs`, `src/Pops/PopSystem.cs`, `src/Pops/PopQueries.cs`, `src/Simulation/GameState.cs` | Deterministic 1,000-pop model across 12 UK regions, monthly drift, aggregates, persistence, and tests added. | Proceed to Step 7 election system (FPTP simulator). |
 | 7 | Election system | Done | `src/Election/ElectionSystem.cs`, `src/Election/ElectionQueries.cs`, `tests/Westminster.Tests/ElectionSystemTests.cs` | Deterministic MVP FPTP simulator, aggregation, and persistence integration implemented. | Proceed to Step 8 UK map. |
-| 8 | UK map | Not started | `src/UK/Placeholder.cs`, `src/World/Placeholder.cs` | No ONS BGC map/topology integration yet. | Import map assets and build region/constituency binding. |
+| 8 | UK map | In progress (Step 8A data foundation) | `src/UK/UkRegionSeeder.cs`, `src/UK/UkMapSeeder.cs`, `src/UK/UkMapQueries.cs` | Deterministic UK region/map binding fixture foundation added; full topology ingestion/visual map pending. | Step 8B: topology loader or visual map scaffold. |
 | 9 | Cabinet system | Not started | `src/Faction/Placeholder.cs` (related systems still placeholder) | No ministerial post logic or May 2026 seed data in gameplay systems yet. | Implement cabinet posts/appointments and seed data. |
 | 10 | MVP schemes | Not started | `src/Narrative/Placeholder.cs` | Scheme framework beyond basic tick list placeholders not implemented. | Implement 5 PRD MVP schemes. |
 | 11 | Polish/playtest/ship MVP | Not started | N/A | Pre-MVP stabilization and playtest phases not reached. | Reach functional MVP scope before polish/ship work. |
@@ -207,3 +207,23 @@ Next recommended action:
 - **Result:** Step 7 election system is now implemented at MVP scope and integrated with persistence and CI smoke flows.
 - **Known limitations:** Uses small deterministic MVP constituency fixture data when full UK constituency/map import is not yet available (Step 8).
 - **Next recommended step (current):** Implement Step 8 UK map and topology integration.
+
+
+## 2026-05-22 — PR #13 — Implement Step 8A UK map data foundation
+
+- **Summary of changes:** Implemented Step 8A data foundation with UK region records, constituency-region map bindings, topology metadata fixtures, UK map query helpers, smoke runner counters, save/load persistence coverage, and dedicated UK map tests.
+- **Files/areas changed:** `src/Core/Models.cs`, `src/Simulation/GameState.cs`, `src/UK/*`, `src/Persistence/SaveGameStore.cs`, `tools/Westminster.SmokeRunner/Program.cs`, `tests/Westminster.Tests/UkMapTests.cs`, `scripts/smoke_checks.py`, `docs/DEVELOPMENT_HISTORY.md`.
+- **Tests/checks run:** Restore/build/test, smoke runner, no-direct-random guard, smoke checks.
+- **Result:** Step 8 is now partially complete (8A foundation); deterministic region + binding substrate is present without implementing full visual map/topology import yet.
+- **Known limitations:** Uses MVP fixture topology metadata and placeholder object/LAD IDs; full ONS/BGC topology loading and visual rendering remain for Step 8B+.
+- **Next recommended step (current):** Step 8B topology loader or visual map scaffold.
+
+
+## 2026-05-22 — PR #14 — Implement Step 8B UK topology loader
+
+- **Summary of changes:** Added a fixture-based UK topology asset contract with repository-root content loading, deterministic ordered deserialization, topology/feature validation helpers, smoke runner topology counters, and dedicated Step 8B loader/validator tests.
+- **Files/areas changed:** `content/map/uk/*`, `src/Core/Models.cs`, `src/UK/UkTopologyLoader.cs`, `src/UK/UkTopologyValidator.cs`, `tools/Westminster.SmokeRunner/Program.cs`, `tests/Westminster.Tests/UkTopologyLoaderTests.cs`, `scripts/smoke_checks.py`, `docs/DEVELOPMENT_HISTORY.md`.
+- **Tests/checks run:** Python guard and smoke checks; .NET checks deferred to CI when local dotnet unavailable.
+- **Result:** Step 8 remains in progress; Step 8B topology loader + asset contract foundation is complete without visual map UI.
+- **Known limitations:** Topology assets are MVP fixtures only; full ONS/BGC ingestion and rendered map flow remain pending.
+- **Next recommended step (current):** Step 8C visual map scaffold or topology import expansion.
