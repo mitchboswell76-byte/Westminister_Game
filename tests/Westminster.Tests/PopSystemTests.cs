@@ -55,7 +55,7 @@ public class PopSystemTests
         PopSystem.TickMonthly(a);
         PopSystem.TickMonthly(b);
 
-        Assert.Equal(a.Pops, b.Pops);
+        Assert.Equal(CanonicalPops(a.Pops), CanonicalPops(b.Pops));
     }
 
     [Fact]
@@ -70,13 +70,36 @@ public class PopSystemTests
             store.SaveGame(path, state, new GameRng(123), new SaveSettings(1, true, false));
             var loaded = store.LoadGame(path);
             Assert.Equal(state.Pops.Count, loaded.State.Pops.Count);
-            Assert.Equal(state.Pops[0], loaded.State.Pops[0]);
-            Assert.Equal(state.Pops[^1], loaded.State.Pops[^1]);
+            Assert.Equal(CanonicalPop(state.Pops[0]), CanonicalPop(loaded.State.Pops[0]));
+            Assert.Equal(CanonicalPop(state.Pops[^1]), CanonicalPop(loaded.State.Pops[^1]));
+            Assert.Equal(CanonicalPop(state.Pops[500]), CanonicalPop(loaded.State.Pops[500]));
         }
         finally
         {
             if (File.Exists(path)) File.Delete(path);
         }
+    }
+
+    private static string[] CanonicalPops(IEnumerable<Pop> pops) => pops.Select(CanonicalPop).ToArray();
+
+    private static string CanonicalPop(Pop p)
+    {
+        var ideology = string.Join("|", p.IdeologyVector
+            .OrderBy(kv => kv.Key, StringComparer.Ordinal)
+            .Select(kv => $"{kv.Key}:{Math.Round(kv.Value, 10):G17}"));
+
+        return string.Join("~",
+            p.Id,
+            p.RegionId,
+            p.Size.ToString(),
+            p.Stratum,
+            p.Profession,
+            ideology,
+            p.Ethnicity,
+            p.Religion,
+            p.AgeCohort,
+            p.Education,
+            $"{Math.Round(p.Engagement, 10):G17}");
     }
 
     private static GameState BuildState()

@@ -134,6 +134,7 @@ public sealed class SaveGameStore
         Execute(connection, transaction, "create table cabinet(position integer not null, character_id text not null, primary key(position));");
         Execute(connection, transaction, "create table constituencies(id text primary key, payload_json text not null);");
         Execute(connection, transaction, "create table policies(id text primary key, payload_json text not null);");
+        Execute(connection, transaction, "create table pops(id text primary key, payload_json text not null);");
         Execute(connection, transaction, "create table schemes(id text primary key, payload_json text not null);");
         Execute(connection, transaction, "create table events(id text primary key, payload_json text not null);");
         Execute(connection, transaction, "create table metrics(id text primary key, value real not null);");
@@ -161,6 +162,7 @@ public sealed class SaveGameStore
         InsertJsonRows(connection, transaction, "characters", state.Characters.Select(x => (x.Id, JsonSerializer.Serialize(x, JsonSupport.Options))));
         InsertJsonRows(connection, transaction, "constituencies", state.Constituencies.Select(x => (x.Id, JsonSerializer.Serialize(x, JsonSupport.Options))));
         InsertJsonRows(connection, transaction, "policies", state.Policies.Select(x => (x.Id, JsonSerializer.Serialize(x, JsonSupport.Options))));
+        InsertJsonRows(connection, transaction, "pops", state.Pops.OrderBy(x => x.Id, StringComparer.Ordinal).Select(x => (x.Id, JsonSerializer.Serialize(x, JsonSupport.Options))));
         InsertJsonRows(connection, transaction, "schemes", state.SchemesActive.Select(x => (x.Id, JsonSerializer.Serialize(x, JsonSupport.Options))));
         InsertJsonRows(connection, transaction, "events", state.EventQueueToday.Select(x => (x.Id, JsonSerializer.Serialize(x, JsonSupport.Options))));
         InsertMetricRows(connection, transaction, state.MetricsLedger.Snapshot());
