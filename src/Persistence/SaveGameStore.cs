@@ -134,6 +134,7 @@ public sealed class SaveGameStore
         Execute(connection, transaction, "create table cabinet(position integer not null, character_id text not null, primary key(position));");
         Execute(connection, transaction, "create table constituencies(id text primary key, payload_json text not null);");
         Execute(connection, transaction, "create table policies(id text primary key, payload_json text not null);");
+        Execute(connection, transaction, "create table pops(id text primary key, payload_json text not null);");
         Execute(connection, transaction, "create table schemes(id text primary key, payload_json text not null);");
         Execute(connection, transaction, "create table events(id text primary key, payload_json text not null);");
         Execute(connection, transaction, "create table metrics(id text primary key, value real not null);");
@@ -161,6 +162,7 @@ public sealed class SaveGameStore
         InsertJsonRows(connection, transaction, "characters", state.Characters.Select(x => (x.Id, JsonSerializer.Serialize(x, JsonSupport.Options))));
         InsertJsonRows(connection, transaction, "constituencies", state.Constituencies.Select(x => (x.Id, JsonSerializer.Serialize(x, JsonSupport.Options))));
         InsertJsonRows(connection, transaction, "policies", state.Policies.Select(x => (x.Id, JsonSerializer.Serialize(x, JsonSupport.Options))));
+        InsertJsonRows(connection, transaction, "pops", state.Pops.OrderBy(x => x.Id, StringComparer.Ordinal).Select(x => (x.Id, JsonSerializer.Serialize(x, JsonSupport.Options))));
         InsertJsonRows(connection, transaction, "schemes", state.SchemesActive.Select(x => (x.Id, JsonSerializer.Serialize(x, JsonSupport.Options))));
         InsertJsonRows(connection, transaction, "events", state.EventQueueToday.Select(x => (x.Id, JsonSerializer.Serialize(x, JsonSupport.Options))));
         InsertMetricRows(connection, transaction, state.MetricsLedger.Snapshot());
@@ -206,6 +208,7 @@ public sealed class SaveGameStore
         state.Characters.AddRange(characters);
         state.Constituencies.AddRange(ReadJsonRows<Constituency>(connection, "constituencies"));
         state.Policies.AddRange(ReadJsonRows<PolicyLever>(connection, "policies"));
+        state.Pops.AddRange(ReadJsonRows<Pop>(connection, "pops"));
         state.SchemesActive.AddRange(ReadJsonRows<Scheme>(connection, "schemes"));
         state.EventQueueToday.AddRange(ReadJsonRows<GameEvent>(connection, "events"));
 
@@ -256,6 +259,7 @@ public sealed class SaveGameStore
 
     private static List<T> ReadJsonRows<T>(SqliteConnection connection, string table)
     {
+        if (!TableExists(connection, table)) return [];
         var rows = new List<T>();
         using var cmd = connection.CreateCommand();
         cmd.CommandText = $"select payload_json from {table} order by id;";
@@ -288,6 +292,15 @@ public sealed class SaveGameStore
             jsonParam.Value = row.Json;
             cmd.ExecuteNonQuery();
         }
+    }
+
+    private static bool TableExists(SqliteConnection connection, string table)
+    {
+        using var cmd = connection.CreateCommand();
+        cmd.CommandText = "select 1 from sqlite_master where type = 'table' and name = $name limit 1;";
+        cmd.Parameters.AddWithValue("$name", table);
+        var result = cmd.ExecuteScalar();
+        return result is not null;
     }
 
     private static void Execute(SqliteConnection connection, SqliteTransaction transaction, string sql)

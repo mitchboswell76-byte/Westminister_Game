@@ -27,6 +27,7 @@ public record InitiativeReward(string Type,string? Value,string? Target,double? 
 public record StrategicInitiative(string Id,string Name,string Tree,List<string> Prerequisites,int DurationDays,int OrderCostPerYear,Dictionary<string,string> IdeologyRequirements,List<InitiativeReward> Rewards,Dictionary<string,int> UiPosition,string PhaseTag);
 public record CoreIssue(string PolicyId,JsonElement PreferredValue,int Weight);
 public record Faction(string Id,string Name,int MembersPopCount,int ApprovalOfGovernment,int PowerScore,string IdeologyLean,List<CoreIssue> CoreIssues,string LeaderId,string? PetitionActiveId,string? InGovernmentPartyId);
+public record Pop(string Id,string RegionId,long Size,string Stratum,string Profession,Dictionary<string,double> IdeologyVector,string Ethnicity,string Religion,string AgeCohort,string Education,double Engagement);
 public record SaveSettings(int Speed,bool AutopauseEvents,bool Ironman);
 public record SaveGameStructure(int SaveVersion,string GameVersion,DateOnly GameDate,ulong RngSeed,ulong RngCallCount,string PlayerCharacterId,string WorldStateDb,List<JsonElement> CharactersDirty,SaveSettings Settings);
 

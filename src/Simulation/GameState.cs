@@ -13,6 +13,7 @@ public class GameState
     public List<GameCharacter> Characters { get; } = [];
     public List<Constituency> Constituencies { get; } = [];
     public List<PolicyLever> Policies { get; } = [];
+    public List<Pop> Pops { get; } = [];
     public List<Scheme> SchemesActive { get; } = [];
     public List<GameEvent> EventQueueToday { get; } = [];
 
