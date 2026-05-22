@@ -14,6 +14,7 @@ public class GameState
     public List<Constituency> Constituencies { get; } = [];
     public List<PolicyLever> Policies { get; } = [];
     public List<Pop> Pops { get; } = [];
+    public List<ElectionResult> ElectionResults { get; } = [];
     public List<Scheme> SchemesActive { get; } = [];
     public List<GameEvent> EventQueueToday { get; } = [];
 

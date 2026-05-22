@@ -138,6 +138,7 @@ public sealed class SaveGameStore
         Execute(connection, transaction, "create table schemes(id text primary key, payload_json text not null);");
         Execute(connection, transaction, "create table events(id text primary key, payload_json text not null);");
         Execute(connection, transaction, "create table metrics(id text primary key, value real not null);");
+        Execute(connection, transaction, "create table election_results(id text primary key, payload_json text not null);");
 
         using (var cmd = connection.CreateCommand())
         {
@@ -166,6 +167,7 @@ public sealed class SaveGameStore
         InsertJsonRows(connection, transaction, "schemes", state.SchemesActive.Select(x => (x.Id, JsonSerializer.Serialize(x, JsonSupport.Options))));
         InsertJsonRows(connection, transaction, "events", state.EventQueueToday.Select(x => (x.Id, JsonSerializer.Serialize(x, JsonSupport.Options))));
         InsertMetricRows(connection, transaction, state.MetricsLedger.Snapshot());
+        InsertJsonRows(connection, transaction, "election_results", state.ElectionResults.OrderBy(x => x.Id, StringComparer.Ordinal).Select(x => (x.Id, JsonSerializer.Serialize(x, JsonSupport.Options))));
 
         using (var cmd = connection.CreateCommand())
         {
@@ -211,6 +213,7 @@ public sealed class SaveGameStore
         state.Pops.AddRange(ReadJsonRows<Pop>(connection, "pops"));
         state.SchemesActive.AddRange(ReadJsonRows<Scheme>(connection, "schemes"));
         state.EventQueueToday.AddRange(ReadJsonRows<GameEvent>(connection, "events"));
+        state.ElectionResults.AddRange(ReadJsonRows<ElectionResult>(connection, "election_results"));
 
         var cabinetIds = ReadCabinetIds(connection);
         foreach (var id in cabinetIds)

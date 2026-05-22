@@ -5,8 +5,8 @@
 WESTMINSTER is a political simulation project being built from `Westminster_PRD.md`, with a deterministic simulation-first foundation and incremental implementation following the PRD’s fixed AI build order.
 
 - **Target engine:** Godot 4.3 + C# (.NET 8).
-- **Current development phase:** Phase 1 MVP implementation in progress, with Steps 1–6 complete.
-- **Current PRD build-order step:** Step 4 (Character creation flow + SQLite save/load) is **done**.
+- **Current development phase:** Phase 1 MVP implementation in progress, with Steps 1–7 complete (assuming this PR passes).
+- **Current PRD build-order step:** Step 7 (Election system) is **done**.
 
 ---
 
@@ -20,7 +20,7 @@ WESTMINSTER is a political simulation project being built from `Westminster_PRD.
 | 4 | Character creation flow + SQLite save/load | Done | `src/Character/CharacterFactory.cs`, `src/Persistence/SaveGameStore.cs`, persistence integration tests | Character creation request model and hybrid `.westminster` save format (manifest + SQLite) are now implemented with transactional writes and load path; broader gameplay entities are still placeholders. | Save/load round-trip determinism now passes PRD §20.4 integration coverage with persisted full RNG state and ordered reads. |
 | 5 | Policy engine with 50 MVP policies | Done | `src/Policy/PolicyEngine.cs`, `src/Policy/Effects.cs`, `content/policies/*.json`, `src/Persistence/ContentLoader.cs` | Policy engine, content loader, metrics ledger, and 50 MVP levers now integrated with save/load and smoke checks. | Proceed to Step 6 pop model (1,000 pops/12 regions). |
 | 6 | Pop model | Done | `src/Pops/PopSeeder.cs`, `src/Pops/PopSystem.cs`, `src/Pops/PopQueries.cs`, `src/Simulation/GameState.cs` | Deterministic 1,000-pop model across 12 UK regions, monthly drift, aggregates, persistence, and tests added. | Proceed to Step 7 election system (FPTP simulator). |
-| 7 | Election system | Not started | `src/Election/Placeholder.cs` | FPTP simulator not implemented. | Add election cycle + constituency result simulation. |
+| 7 | Election system | Done | `src/Election/ElectionSystem.cs`, `src/Election/ElectionQueries.cs`, `tests/Westminster.Tests/ElectionSystemTests.cs` | Deterministic MVP FPTP simulator, aggregation, and persistence integration implemented. | Proceed to Step 8 UK map. |
 | 8 | UK map | Not started | `src/UK/Placeholder.cs`, `src/World/Placeholder.cs` | No ONS BGC map/topology integration yet. | Import map assets and build region/constituency binding. |
 | 9 | Cabinet system | Not started | `src/Faction/Placeholder.cs` (related systems still placeholder) | No ministerial post logic or May 2026 seed data in gameplay systems yet. | Implement cabinet posts/appointments and seed data. |
 | 10 | MVP schemes | Not started | `src/Narrative/Placeholder.cs` | Scheme framework beyond basic tick list placeholders not implemented. | Implement 5 PRD MVP schemes. |
@@ -140,7 +140,7 @@ Current repository state includes:
 - Hybrid archive + SQLite persistence is in place, but table coverage is currently limited to implemented modules (many gameplay systems still placeholders).
 - Policy engine (Step 5) is implemented, but effect balancing is still placeholder-level and requires iterative tuning.
 - Pop model (Step 6) is implemented at MVP scope; advanced demographic dynamics remain intentionally out of scope for now.
-- No implemented election simulator yet (Step 7 not started).
+- MVP election simulator (Step 7) implemented; future expansion can add richer polling/media and non-FPTP systems.
 - No implemented cabinet gameplay system yet (Step 9 not started).
 - No implemented MVP schemes yet (Step 10 not started).
 - UI remains stub-level; no real player-facing gameplay loop yet.
@@ -151,7 +151,7 @@ Current repository state includes:
 ## 6. Next Recommended PR
 
 ### Primary next PR
-**Proceed to Step 7 election system (FPTP simulator, PRD §10.5).**
+**Proceed to Step 8 UK map (ONS BGC topology integration, PRD §16.2/§18.5).**
 
 Rationale: Steps 1–6 are now complete, so the fixed PRD build order moves directly to Step 7.
 
@@ -196,3 +196,13 @@ Next recommended action:
 - **Result:** Step 6 is complete and deterministic with persistence and verification coverage.
 - **Known limitations:** Pop drift remains intentionally simple MVP logic without elections/factions simulation depth.
 - **Next recommended step (current):** Implement Step 7 election system (FPTP simulator).
+
+
+## 2026-05-22 — PR #11 — Implement Step 7 FPTP election system
+
+- **Summary of changes:** Replaced election placeholder with deterministic MVP FPTP simulation using constituency baselines plus pop/policy-driven swing, added MVP constituency fallback seeding, persisted election result history, wired smoke runner election output, and added election test coverage including determinism, tie-breaks, and save/load round-trip.
+- **Files/areas changed:** `src/Election/*`, `src/Core/Models.cs`, `src/Simulation/GameState.cs`, `src/Persistence/SaveGameStore.cs`, `tools/Westminster.SmokeRunner/Program.cs`, `tests/Westminster.Tests/ElectionSystemTests.cs`, `scripts/smoke_checks.py`, `docs/DEVELOPMENT_HISTORY.md`.
+- **Tests/checks run:** Restore/build/test, smoke runner, no-direct-random guard, smoke checks.
+- **Result:** Step 7 election system is now implemented at MVP scope and integrated with persistence and CI smoke flows.
+- **Known limitations:** Uses small deterministic MVP constituency fixture data when full UK constituency/map import is not yet available (Step 8).
+- **Next recommended step (current):** Implement Step 8 UK map and topology integration.
