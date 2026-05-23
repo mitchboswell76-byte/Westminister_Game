@@ -6,7 +6,7 @@ WESTMINSTER is a political simulation project being built from `Westminster_PRD.
 
 - **Target engine:** Godot 4.3 + C# (.NET 8).
 - **Current development phase:** Phase 1 MVP implementation in progress, with Steps 1–7 complete.
-- **Current PRD build-order step:** Step 8 (UK map/topology integration) is **next**.
+- **Current PRD build-order step:** Step 8 (UK map/topology integration) is **in progress** (8A/8B/8C delivered, rendering refinement pending).
 
 ---
 
@@ -21,7 +21,7 @@ WESTMINSTER is a political simulation project being built from `Westminster_PRD.
 | 5 | Policy engine with 50 MVP policies | Done | `src/Policy/PolicyEngine.cs`, `src/Policy/Effects.cs`, `content/policies/*.json`, `src/Persistence/ContentLoader.cs` | Policy engine, content loader, metrics ledger, and 50 MVP levers now integrated with save/load and smoke checks. | Proceed to Step 6 pop model (1,000 pops/12 regions). |
 | 6 | Pop model | Done | `src/Pops/PopSeeder.cs`, `src/Pops/PopSystem.cs`, `src/Pops/PopQueries.cs`, `src/Simulation/GameState.cs` | Deterministic 1,000-pop model across 12 UK regions, monthly drift, aggregates, persistence, and tests added. | Proceed to Step 7 election system (FPTP simulator). |
 | 7 | Election system | Done | `src/Election/ElectionSystem.cs`, `src/Election/ElectionQueries.cs`, `tests/Westminster.Tests/ElectionSystemTests.cs` | Deterministic MVP FPTP simulator, aggregation, and persistence integration implemented. | Proceed to Step 8 UK map. |
-| 8 | UK map | In progress (Step 8A data foundation) | `src/UK/UkRegionSeeder.cs`, `src/UK/UkMapSeeder.cs`, `src/UK/UkMapQueries.cs` | Deterministic UK region/map binding fixture foundation added; full topology ingestion/visual map pending. | Step 8B: topology loader or visual map scaffold. |
+| 8 | UK map | In progress (Steps 8A/8B/8C foundation + view model scaffold) | `src/UK/UkRegionSeeder.cs`, `src/UK/UkMapSeeder.cs`, `src/UK/UkMapQueries.cs` | Deterministic UK region/map binding fixture foundation added; full topology ingestion/visual map pending. | Step 8D: map rendering refinement (player-facing map presentation) or Step 9 cabinet system after map scaffold follow-up. |
 | 9 | Cabinet system | Not started | `src/Faction/Placeholder.cs` (related systems still placeholder) | No ministerial post logic or May 2026 seed data in gameplay systems yet. | Implement cabinet posts/appointments and seed data. |
 | 10 | MVP schemes | Not started | `src/Narrative/Placeholder.cs` | Scheme framework beyond basic tick list placeholders not implemented. | Implement 5 PRD MVP schemes. |
 | 11 | Polish/playtest/ship MVP | Not started | N/A | Pre-MVP stabilization and playtest phases not reached. | Reach functional MVP scope before polish/ship work. |
@@ -227,3 +227,13 @@ Next recommended action:
 - **Result:** Step 8 remains in progress; Step 8B topology loader + asset contract foundation is complete without visual map UI.
 - **Known limitations:** Topology assets are MVP fixtures only; full ONS/BGC ingestion and rendered map flow remain pending.
 - **Next recommended step (current):** Step 8C visual map scaffold or topology import expansion.
+
+
+## 2026-05-23 — PR #15 — Implement Step 8C UK map visual scaffold
+
+- **Summary of changes:** Added a deterministic, testable UK map view-model layer (region/feature display models + builder), wired election winner projection and selection flags, emitted map view counters from smoke runner, and added dedicated Step 8C tests and smoke script checks.
+- **Files/areas changed:** `src/UI/Map/*`, `tools/Westminster.SmokeRunner/Program.cs`, `tests/Westminster.Tests/UkMapViewModelTests.cs`, `scripts/smoke_checks.py`, `docs/DEVELOPMENT_HISTORY.md`.
+- **Tests/checks run:** restore/build/test, smoke runner, no-direct-random check, smoke checks, and CI `ci / build-test-smoke`.
+- **Result:** Step 8 remains in progress; Step 8C visual scaffold / map view model is complete with deterministic projection coverage, while full rendered topology/map visuals are still pending.
+- **Known limitations:** Godot UI rendering remains intentionally minimal; no full GIS rendering or large real ONS/BGC topology ingestion yet.
+- **Next recommended step (current):** Step 8D map rendering refinement (surface the view model in player-facing Godot UI), or proceed to Step 9 cabinet system once map rendering scope is accepted.

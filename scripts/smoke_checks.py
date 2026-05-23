@@ -94,3 +94,21 @@ assert len(feature_fixture.get("features", [])) >= 12
 fixture_blob = json.dumps(feature_fixture)
 for rid in region_ids:
   assert rid in fixture_blob or rid in uk_sources, f"region id missing from fixture/source: {rid}"
+
+
+# UK map view model scaffold checks
+for rel in [
+  "src/UI/Map/UkMapViewModel.cs",
+  "src/UI/Map/UkMapViewModelBuilder.cs",
+  "tests/Westminster.Tests/UkMapViewModelTests.cs",
+]:
+  assert (root / rel).exists(), f"missing expected uk map view model file: {rel}"
+
+smoke_runner_source = (root / "tools" / "Westminster.SmokeRunner" / "Program.cs").read_text()
+for label in [
+  "map_view_regions=",
+  "map_view_features=",
+  "map_view_has_election_winners=",
+  "map_view_valid=",
+]:
+  assert label in smoke_runner_source, f"missing smoke output label: {label}"
