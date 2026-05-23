@@ -5,6 +5,7 @@ using Westminster.Pops;
 using Westminster.Simulation;
 using Westminster.Election;
 using Westminster.UK;
+using Westminster.UI.Map;
 using GameCharacter = Westminster.Core.Character;
 
 static string FindRepositoryRoot()
@@ -74,3 +75,9 @@ var topologyBindingValidationOk = UkTopologyValidator.ValidateBindingsAgainstFea
 Console.WriteLine($"topology_metadata_loaded={loadedTopologyMetadata.Count}");
 Console.WriteLine($"topology_features_loaded={loadedFeatureCollection.Features.Count}");
 Console.WriteLine($"topology_bindings_valid={topologyFeatureValidationOk && topologyBindingValidationOk}");
+
+var mapViewModel = UkMapViewModelBuilder.Build(state, loadedFeatureCollection);
+Console.WriteLine($"map_view_regions={mapViewModel.Regions.Count}");
+Console.WriteLine($"map_view_features={mapViewModel.Features.Count}");
+Console.WriteLine($"map_view_has_election_winners={mapViewModel.Features.Any(x => !string.IsNullOrWhiteSpace(x.WinnerPartyId))}");
+Console.WriteLine($"map_view_valid={mapViewModel.IsValid}");
