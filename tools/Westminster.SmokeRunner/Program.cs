@@ -81,3 +81,8 @@ Console.WriteLine($"map_view_regions={mapViewModel.Regions.Count}");
 Console.WriteLine($"map_view_features={mapViewModel.Features.Count}");
 Console.WriteLine($"map_view_has_election_winners={mapViewModel.Features.Any(x => !string.IsNullOrWhiteSpace(x.WinnerPartyId))}");
 Console.WriteLine($"map_view_valid={mapViewModel.IsValid}");
+var mapPresentation = UkMapPresentationBuilder.Build(mapViewModel, mapViewModel.Regions.FirstOrDefault()?.RegionId, mapViewModel.Features.FirstOrDefault()?.ConstituencyId, mapViewModel.Features.FirstOrDefault()?.FeatureId);
+Console.WriteLine($"map_presentation_regions={mapPresentation.RegionRows.Count}");
+Console.WriteLine($"map_presentation_features={mapPresentation.FeatureRows.Count}");
+Console.WriteLine($"map_presentation_selected_region_supported={!string.IsNullOrWhiteSpace(mapPresentation.SelectedRegionId)}");
+Console.WriteLine($"map_presentation_selected_constituency_supported={!string.IsNullOrWhiteSpace(mapPresentation.SelectedConstituencyId)}");

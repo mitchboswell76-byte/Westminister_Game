@@ -112,3 +112,19 @@ for label in [
   "map_view_valid=",
 ]:
   assert label in smoke_runner_source, f"missing smoke output label: {label}"
+
+for rel in [
+  "src/UI/Map/UkMapPresentation.cs",
+  "src/UI/Map/UkMapScreen.cs",
+  "tests/Westminster.Tests/UkMapPresentationTests.cs",
+  "scenes/UkMapScreen.tscn",
+]:
+  assert (root / rel).exists(), f"missing expected uk map presentation file: {rel}"
+
+for label in [
+  "map_presentation_regions=",
+  "map_presentation_features=",
+  "map_presentation_selected_region_supported=",
+  "map_presentation_selected_constituency_supported=",
+]:
+  assert label in smoke_runner_source, f"missing smoke output label: {label}"

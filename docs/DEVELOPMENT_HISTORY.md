@@ -6,7 +6,7 @@ WESTMINSTER is a political simulation project being built from `Westminster_PRD.
 
 - **Target engine:** Godot 4.3 + C# (.NET 8).
 - **Current development phase:** Phase 1 MVP implementation in progress, with Steps 1–7 complete.
-- **Current PRD build-order step:** Step 8 (UK map/topology integration) is **in progress** (8A/8B/8C delivered, rendering refinement pending).
+- **Current PRD build-order step:** Step 8 (UK map/topology integration) is **in progress** (8A/8B/8C/8D delivered, visual refinement and real-geometry import planning pending).
 
 ---
 
@@ -21,7 +21,7 @@ WESTMINSTER is a political simulation project being built from `Westminster_PRD.
 | 5 | Policy engine with 50 MVP policies | Done | `src/Policy/PolicyEngine.cs`, `src/Policy/Effects.cs`, `content/policies/*.json`, `src/Persistence/ContentLoader.cs` | Policy engine, content loader, metrics ledger, and 50 MVP levers now integrated with save/load and smoke checks. | Proceed to Step 6 pop model (1,000 pops/12 regions). |
 | 6 | Pop model | Done | `src/Pops/PopSeeder.cs`, `src/Pops/PopSystem.cs`, `src/Pops/PopQueries.cs`, `src/Simulation/GameState.cs` | Deterministic 1,000-pop model across 12 UK regions, monthly drift, aggregates, persistence, and tests added. | Proceed to Step 7 election system (FPTP simulator). |
 | 7 | Election system | Done | `src/Election/ElectionSystem.cs`, `src/Election/ElectionQueries.cs`, `tests/Westminster.Tests/ElectionSystemTests.cs` | Deterministic MVP FPTP simulator, aggregation, and persistence integration implemented. | Proceed to Step 8 UK map. |
-| 8 | UK map | In progress (Steps 8A/8B/8C foundation + view model scaffold) | `src/UK/UkRegionSeeder.cs`, `src/UK/UkMapSeeder.cs`, `src/UK/UkMapQueries.cs` | Deterministic UK region/map binding fixture foundation added; full topology ingestion/visual map pending. | Step 8D: map rendering refinement (player-facing map presentation) or Step 9 cabinet system after map scaffold follow-up. |
+| 8 | UK map | In progress (Steps 8A/8B/8C/8D MVP scaffold complete) | `src/UK/UkRegionSeeder.cs`, `src/UK/UkMapSeeder.cs`, `src/UK/UkMapQueries.cs` | Deterministic UK region/map binding fixture foundation added; full topology ingestion/visual map pending. | Step 8E: map visual refinement + real topology import plan, or Step 9 cabinet system if current map MVP scope is accepted. |
 | 9 | Cabinet system | Not started | `src/Faction/Placeholder.cs` (related systems still placeholder) | No ministerial post logic or May 2026 seed data in gameplay systems yet. | Implement cabinet posts/appointments and seed data. |
 | 10 | MVP schemes | Not started | `src/Narrative/Placeholder.cs` | Scheme framework beyond basic tick list placeholders not implemented. | Implement 5 PRD MVP schemes. |
 | 11 | Polish/playtest/ship MVP | Not started | N/A | Pre-MVP stabilization and playtest phases not reached. | Reach functional MVP scope before polish/ship work. |
@@ -237,3 +237,13 @@ Next recommended action:
 - **Result:** Step 8 remains in progress; Step 8C visual scaffold / map view model is complete with deterministic projection coverage, while full rendered topology/map visuals are still pending.
 - **Known limitations:** Godot UI rendering remains intentionally minimal; no full GIS rendering or large real ONS/BGC topology ingestion yet.
 - **Next recommended step (current):** Step 8D map rendering refinement (surface the view model in player-facing Godot UI), or proceed to Step 9 cabinet system once map rendering scope is accepted.
+
+
+## 2026-05-23 — PR #16 — Implement Step 8D basic UK map presentation
+
+- **Summary of changes:** Added a minimal player-facing UK map presentation layer and screen scaffold that transforms Step 8C map view-model data into render-ready region/feature rows, selection state, and winner labels; added Step 8D tests, smoke runner presentation counters, and smoke script checks.
+- **Files/areas changed:** `src/UI/Map/UkMapPresentation.cs`, `src/UI/Map/UkMapScreen.cs`, `scenes/UkMapScreen.tscn`, `tools/Westminster.SmokeRunner/Program.cs`, `tests/Westminster.Tests/UkMapPresentationTests.cs`, `scripts/smoke_checks.py`, `docs/DEVELOPMENT_HISTORY.md`.
+- **Tests/checks run:** restore/build/test, smoke runner, random guard, smoke checks, and CI `ci / build-test-smoke`.
+- **Result:** Step 8D is complete as an MVP rendered/data presentation scaffold; Step 8 overall remains in progress pending visual polish and real ONS/BGC geometry import planning.
+- **Known limitations:** Map remains intentionally unpolished, uses MVP fixture features, and does not yet perform full real-geometry ONS/BGC import or GIS-grade rendering.
+- **Next recommended step (current):** Step 8E map visual refinement / real topology import plan (or Step 9 cabinet system if map MVP acceptance is sufficient).
